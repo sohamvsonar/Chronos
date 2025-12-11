@@ -94,6 +94,7 @@ curl http://localhost:3000/customers/cust_001
 curl -X PATCH http://localhost:3000/products/prod_001/inventory \
   -H "Content-Type: application/json" \
   -d '{"quantity": 1}'
+```
 
 
 ## Project Structure

@@ -1,5 +1,6 @@
 const fastify = require('fastify');
 const db = require('@chronos/database');
+const { calculateVipTier } = require('./helpers');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
 const app = fastify({
@@ -59,23 +60,43 @@ app.get('/customers', async (request, reply) => {
   }
 });
 
-// Get customer by ID
+// Get customer by ID with total_spent and VIP tier
 app.get('/customers/:id', async (request, reply) => {
   try {
     const { id } = request.params;
 
-    const result = await db.query('SELECT * FROM customers WHERE id = $1', [id]);
+    // Get customer data
+    const customerResult = await db.query('SELECT * FROM customers WHERE id = $1', [id]);
 
-    if (result.rows.length === 0) {
+    if (customerResult.rows.length === 0) {
       return reply.code(404).send({
         success: false,
         error: 'Customer not found'
       });
     }
 
+    const customer = customerResult.rows[0];
+
+    // Calculate total spent from orders
+    const ordersResult = await db.query(
+      `SELECT COALESCE(SUM(total_amount), 0) as total_spent
+       FROM orders
+       WHERE customer_id = $1 AND status IN ('completed', 'pending')`,
+      [id]
+    );
+
+    const totalSpent = parseFloat(ordersResult.rows[0].total_spent);
+
+    // Calculate VIP tier dynamically
+    const vipTier = calculateVipTier(totalSpent);
+
     return {
       success: true,
-      data: result.rows[0]
+      data: {
+        ...customer,
+        total_spent: totalSpent,
+        vip_tier: vipTier
+      }
     };
   } catch (error) {
     app.log.error(error);
@@ -86,47 +107,7 @@ app.get('/customers/:id', async (request, reply) => {
   }
 });
 
-// Create customer
-app.post('/customers', async (request, reply) => {
-  try {
-    const { id, email, name, tier, phone, address } = request.body;
-
-    if (!id || !email || !name || !tier) {
-      return reply.code(400).send({
-        success: false,
-        error: 'Missing required fields (id, email, name, tier)'
-      });
-    }
-
-    const result = await db.query(
-      `INSERT INTO customers (id, email, name, tier, phone, address)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [id, email, name, tier, phone, address ? JSON.stringify(address) : null]
-    );
-
-    return reply.code(201).send({
-      success: true,
-      data: result.rows[0]
-    });
-  } catch (error) {
-    app.log.error(error);
-
-    if (error.code === '23505') {
-      return reply.code(409).send({
-        success: false,
-        error: 'Customer with this ID or email already exists'
-      });
-    }
-
-    return reply.code(500).send({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
-});
-
-// Update customer
+// Update customer (email, name)
 app.put('/customers/:id', async (request, reply) => {
   try {
     const { id } = request.params;
@@ -185,6 +166,7 @@ app.put('/customers/:id', async (request, reply) => {
 
     return {
       success: true,
+      message: 'Customer updated successfully',
       data: result.rows[0]
     };
   } catch (error) {
@@ -194,6 +176,46 @@ app.put('/customers/:id', async (request, reply) => {
       return reply.code(409).send({
         success: false,
         error: 'Email already in use'
+      });
+    }
+
+    return reply.code(500).send({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Create customer
+app.post('/customers', async (request, reply) => {
+  try {
+    const { id, email, name, tier, phone, address } = request.body;
+
+    if (!id || !email || !name || !tier) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required fields (id, email, name, tier)'
+      });
+    }
+
+    const result = await db.query(
+      `INSERT INTO customers (id, email, name, tier, phone, address)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [id, email, name, tier, phone, address ? JSON.stringify(address) : null]
+    );
+
+    return reply.code(201).send({
+      success: true,
+      data: result.rows[0]
+    });
+  } catch (error) {
+    app.log.error(error);
+
+    if (error.code === '23505') {
+      return reply.code(409).send({
+        success: false,
+        error: 'Customer with this ID or email already exists'
       });
     }
 

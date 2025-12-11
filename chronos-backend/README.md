@@ -8,7 +8,8 @@ A microservices-based backend system for a luxury watch store built with Node.js
 chronos-backend/
 ├── data/
 │   ├── products.json
-│   └── customers.json
+│   ├── customers.json
+│   └── orders.json
 ├── packages/
 │   └── database/
 │       ├── package.json
@@ -46,23 +47,33 @@ chronos-backend/
 
 ### Product Service (`services/product-service`)
 - **Port:** 3001
+- **Features:**
+  - **Redis Caching:** Product details cached for 60 seconds
+  - **Pagination:** Limit/offset support for product listings
+  - **Advanced Filtering:** Category, brand, price range filters
+  - **Inventory Management:** Stock validation and decrement
 - **Routes:**
-  - `GET /health` - Health check
-  - `GET /products` - List all products (with filters: brand, category, minPrice, maxPrice)
-  - `GET /products/:id` - Get product by ID
+  - `GET /health` - Health check (includes Redis connection status)
+  - `GET /products` - List all products with pagination (params: limit, offset, category, brand, minPrice, maxPrice)
+  - `GET /products/:id` - Get product by ID with Redis caching
+  - `PATCH /products/:id/inventory` - Decrement stock (validates availability, invalidates cache)
   - `POST /products` - Create new product
-  - `PUT /products/:id` - Update product
-  - `DELETE /products/:id` - Delete product
+  - `PUT /products/:id` - Update product (invalidates cache)
+  - `DELETE /products/:id` - Delete product (invalidates cache)
 
 ### Customer Service (`services/customer-service`)
 - **Port:** 3002
+- **Features:**
+  - **VIP Tier Calculation:** Dynamic tier based on total spending (Gold > $10k, Silver > $5k, Bronze ≤ $5k)
+  - **Order Analytics:** Calculates total_spent from completed/pending orders
+  - **Profile Management:** Update customer information
 - **Routes:**
   - `GET /health` - Health check
   - `GET /customers` - List all customers (with filters: tier, email)
-  - `GET /customers/:id` - Get customer by ID
+  - `GET /customers/:id` - Get customer by ID with total_spent and calculated vip_tier
+  - `PUT /customers/:id` - Update customer information (email, name, tier, phone, address)
   - `GET /customers/:id/orders` - Get customer orders
   - `POST /customers` - Create new customer
-  - `PUT /customers/:id` - Update customer
   - `DELETE /customers/:id` - Delete customer
 
 ### Shared Database Package (`packages/database`)
@@ -128,7 +139,7 @@ npm run seed
 This will:
 - Drop existing tables (if any)
 - Create new tables (products, customers, orders)
-- Insert data from `data/products.json` and `data/customers.json`
+- Insert data from `data/products.json`, `data/customers.json`, and `data/orders.json`
 
 ### 5. Start Development Servers
 
@@ -142,6 +153,26 @@ This starts:
 - **API Gateway** on `http://localhost:3000`
 - **Product Service** on `http://localhost:3001`
 - **Customer Service** on `http://localhost:3002`
+
+## Phase 2 - Core Business Logic ✨
+
+### New Features Implemented
+
+**Product Service Enhancements:**
+- **Pagination:** `GET /products?limit=10&offset=0`
+- **Category Filtering:** `GET /products?category=sport`
+- **Redis Caching:** Product details cached for 60 seconds, cache invalidated on updates
+- **Inventory Management:** `PATCH /products/:id/inventory` with stock validation
+
+**Customer Service Enhancements:**
+- **VIP Tier Calculation:** Automatically calculate tier based on total spending
+  - Gold tier: Total spent > $10,000
+  - Silver tier: Total spent > $5,000
+  - Bronze tier: Total spent ≤ $5,000
+- **Order Analytics:** `total_spent` calculated from completed/pending orders
+- **Enhanced Profile:** `GET /customers/:id` returns customer with `total_spent` and `vip_tier`
+
+**📘 For detailed testing instructions and curl commands, see [PHASE2-TESTING.md](PHASE2-TESTING.md).**
 
 ## Testing the API
 
@@ -238,10 +269,33 @@ npm run test:customers
 
 For detailed testing documentation, see [TESTING.md](TESTING.md).
 
+## Phase 2 Quick Test
+
+```bash
+# 1. Generate token
+export TOKEN=$(curl -s -X POST http://localhost:3000/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "user123", "email": "test@example.com"}' | jq -r '.token')
+
+# 2. Get a product (cached)
+curl -X GET "http://localhost:3000/products/prod_001" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 3. Purchase simulation (decrement inventory)
+curl -X PATCH "http://localhost:3000/products/prod_001/inventory" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"quantity": 1}'
+
+# 4. Get customer with VIP tier
+curl -X GET "http://localhost:3000/customers/cust_001" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
 ## Next Steps
 
-- Implement order service for managing watch purchases
-- Add Redis for session management and caching
-- Implement BullMQ for background job processing
+- **Phase 3:** Implement order service for managing watch purchases
+- Add BullMQ for background job processing
 - Add comprehensive error handling and validation
 - Implement API documentation with Swagger/OpenAPI
+- Performance monitoring and metrics

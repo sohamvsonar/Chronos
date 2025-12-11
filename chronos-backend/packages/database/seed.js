@@ -17,13 +17,16 @@ const seedDatabase = async () => {
     // Read data files
     const productsPath = path.resolve(__dirname, '../../data/products.json');
     const customersPath = path.resolve(__dirname, '../../data/customers.json');
+    const ordersPath = path.resolve(__dirname, '../../data/orders.json');
 
     console.log('\nReading data files...');
     const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
     const customers = JSON.parse(fs.readFileSync(customersPath, 'utf8'));
+    const orders = JSON.parse(fs.readFileSync(ordersPath, 'utf8'));
 
     console.log(`Found ${products.length} products`);
     console.log(`Found ${customers.length} customers`);
+    console.log(`Found ${orders.length} orders`);
 
     // Seed products
     console.log('\nSeeding products...');
@@ -62,6 +65,26 @@ const seedDatabase = async () => {
       );
     }
     console.log(`✓ Seeded ${customers.length} customers`);
+
+    // Seed orders
+    console.log('\nSeeding orders...');
+    for (const order of orders) {
+      await query(
+        `INSERT INTO orders (order_number, customer_id, items, total_amount, status, payment_method, shipping_address, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          order.order_number,
+          order.customer_id,
+          JSON.stringify(order.items),
+          order.total_amount,
+          order.status,
+          order.payment_method,
+          JSON.stringify(order.shipping_address),
+          order.notes || null,
+        ]
+      );
+    }
+    console.log(`✓ Seeded ${orders.length} orders`);
 
     console.log('\n✅ Database seeding completed successfully!');
   } catch (error) {

@@ -9,10 +9,18 @@
   ],
   "scripts": {
     "dev": "concurrently -n \"gateway,product-svc,customer-svc\" -c \"blue,green,yellow\" \"npm run dev -w services/gateway\" \"npm run dev -w services/product-service\" \"npm run dev -w services/customer-service\"",
-    "seed": "node packages/database/seed.js"
+    "seed": "node packages/database/seed.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:gateway": "jest services/gateway",
+    "test:products": "jest services/product-service",
+    "test:customers": "jest services/customer-service"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/jest": "^30.0.0",
+    "concurrently": "^8.2.2",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   },
   "engines": {
     "node": ">=18.0.0"

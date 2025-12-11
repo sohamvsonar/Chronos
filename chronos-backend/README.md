@@ -214,6 +214,30 @@ curl http://localhost:3002/health
 - The gateway handles all authentication - services trust the gateway
 - Rate limiting is per IP address with 100 requests per minute limit
 
+## Testing
+
+Comprehensive test suite for Phase 1 implementation with 44 passing tests covering:
+- Gateway service (JWT, rate limiting, authentication)
+- Product service (CRUD operations, filtering)
+- Customer service (CRUD operations, filtering, orders)
+
+### Run Tests
+
+```bash
+# Run all tests with coverage
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run individual service tests
+npm run test:gateway
+npm run test:products
+npm run test:customers
+```
+
+For detailed testing documentation, see [TESTING.md](TESTING.md).
+
 ## Next Steps
 
 - Implement order service for managing watch purchases

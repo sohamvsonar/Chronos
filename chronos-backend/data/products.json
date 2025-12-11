@@ -1,0 +1,172 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Rolex Submariner Date",
+    "brand": "Rolex",
+    "price": 14500.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_002",
+    "name": "Omega Speedmaster Professional",
+    "brand": "Omega",
+    "price": 6800.00,
+    "stock": 5,
+    "category": "sport",
+    "metadata": {
+      "movement": "Manual",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "50m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_003",
+    "name": "Patek Philippe Nautilus",
+    "brand": "Patek Philippe",
+    "price": 89000.00,
+    "stock": 1,
+    "category": "luxury",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "120m",
+      "year": 2022,
+      "condition": "Excellent",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_004",
+    "name": "Audemars Piguet Royal Oak",
+    "brand": "Audemars Piguet",
+    "price": 72000.00,
+    "stock": 2,
+    "category": "luxury",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "50m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_005",
+    "name": "TAG Heuer Carrera Chronograph",
+    "brand": "TAG Heuer",
+    "price": 5200.00,
+    "stock": 8,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "43mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_006",
+    "name": "Cartier Santos",
+    "brand": "Cartier",
+    "price": 7800.00,
+    "stock": 4,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "39.8mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_007",
+    "name": "IWC Portugieser Chronograph",
+    "brand": "IWC",
+    "price": 12500.00,
+    "stock": 3,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_008",
+    "name": "Jaeger-LeCoultre Reverso",
+    "brand": "Jaeger-LeCoultre",
+    "price": 8900.00,
+    "stock": 2,
+    "category": "dress",
+    "metadata": {
+      "movement": "Manual",
+      "case_material": "Stainless Steel",
+      "case_diameter": "26.0mm x 42.8mm",
+      "water_resistance": "30m",
+      "year": 2022,
+      "condition": "Excellent",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_009",
+    "name": "Breitling Navitimer",
+    "brand": "Breitling",
+    "price": 8700.00,
+    "stock": 6,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "46mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_010",
+    "name": "Vacheron Constantin Overseas",
+    "brand": "Vacheron Constantin",
+    "price": 32000.00,
+    "stock": 1,
+    "category": "luxury",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "150m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  }
+]

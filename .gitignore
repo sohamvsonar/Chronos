@@ -1,0 +1,5 @@
+/chronos-backend/node_modules/
+# Ignore node_modules directories everywhere
+node_modules/
+**/node_modules/
+/chronos-backend/.env

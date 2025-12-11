@@ -1,0 +1,152 @@
+[
+  {
+    "id": "cust_001",
+    "email": "john.smith@email.com",
+    "name": "John Smith",
+    "tier": "platinum",
+    "phone": "+1-555-0101",
+    "address": {
+      "street": "123 Park Avenue",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10001",
+      "country": "USA"
+    },
+    "created_at": "2023-01-15T10:00:00Z"
+  },
+  {
+    "id": "cust_002",
+    "email": "sarah.johnson@email.com",
+    "name": "Sarah Johnson",
+    "tier": "gold",
+    "phone": "+1-555-0102",
+    "address": {
+      "street": "456 Beverly Hills Blvd",
+      "city": "Los Angeles",
+      "state": "CA",
+      "zip": "90210",
+      "country": "USA"
+    },
+    "created_at": "2023-02-20T14:30:00Z"
+  },
+  {
+    "id": "cust_003",
+    "email": "michael.chen@email.com",
+    "name": "Michael Chen",
+    "tier": "platinum",
+    "phone": "+1-555-0103",
+    "address": {
+      "street": "789 Market Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103",
+      "country": "USA"
+    },
+    "created_at": "2023-03-10T09:15:00Z"
+  },
+  {
+    "id": "cust_004",
+    "email": "emma.williams@email.com",
+    "name": "Emma Williams",
+    "tier": "silver",
+    "phone": "+1-555-0104",
+    "address": {
+      "street": "321 Michigan Avenue",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60611",
+      "country": "USA"
+    },
+    "created_at": "2023-04-05T11:45:00Z"
+  },
+  {
+    "id": "cust_005",
+    "email": "david.martinez@email.com",
+    "name": "David Martinez",
+    "tier": "gold",
+    "phone": "+1-555-0105",
+    "address": {
+      "street": "654 Ocean Drive",
+      "city": "Miami",
+      "state": "FL",
+      "zip": "33139",
+      "country": "USA"
+    },
+    "created_at": "2023-05-12T16:20:00Z"
+  },
+  {
+    "id": "cust_006",
+    "email": "olivia.brown@email.com",
+    "name": "Olivia Brown",
+    "tier": "platinum",
+    "phone": "+1-555-0106",
+    "address": {
+      "street": "987 Newbury Street",
+      "city": "Boston",
+      "state": "MA",
+      "zip": "02116",
+      "country": "USA"
+    },
+    "created_at": "2023-06-18T13:00:00Z"
+  },
+  {
+    "id": "cust_007",
+    "email": "james.davis@email.com",
+    "name": "James Davis",
+    "tier": "silver",
+    "phone": "+1-555-0107",
+    "address": {
+      "street": "147 Pike Place",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98101",
+      "country": "USA"
+    },
+    "created_at": "2023-07-22T10:30:00Z"
+  },
+  {
+    "id": "cust_008",
+    "email": "sophia.wilson@email.com",
+    "name": "Sophia Wilson",
+    "tier": "gold",
+    "phone": "+1-555-0108",
+    "address": {
+      "street": "258 Peachtree Street",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30303",
+      "country": "USA"
+    },
+    "created_at": "2023-08-14T15:45:00Z"
+  },
+  {
+    "id": "cust_009",
+    "email": "robert.taylor@email.com",
+    "name": "Robert Taylor",
+    "tier": "bronze",
+    "phone": "+1-555-0109",
+    "address": {
+      "street": "369 Congress Avenue",
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78701",
+      "country": "USA"
+    },
+    "created_at": "2023-09-08T12:00:00Z"
+  },
+  {
+    "id": "cust_010",
+    "email": "isabella.anderson@email.com",
+    "name": "Isabella Anderson",
+    "tier": "platinum",
+    "phone": "+1-555-0110",
+    "address": {
+      "street": "741 Lombard Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94133",
+      "country": "USA"
+    },
+    "created_at": "2023-10-30T17:30:00Z"
+  }
+]

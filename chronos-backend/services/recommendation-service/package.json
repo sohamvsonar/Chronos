@@ -1,0 +1,16 @@
+{
+  "name": "@chronos/recommendation-service",
+  "version": "1.0.0",
+  "description": "Chronos Recommendation Engine - Hybrid Content & Collaborative Filtering",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "fastify": "^4.29.1",
+    "@chronos/database": "*",
+    "ioredis": "^5.4.1",
+    "pino-pretty": "^11.2.2",
+    "dotenv": "^16.4.7"
+  }
+}

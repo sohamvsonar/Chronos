@@ -8,13 +8,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"gateway,product-svc,customer-svc\" -c \"blue,green,yellow\" \"npm run dev -w services/gateway\" \"npm run dev -w services/product-service\" \"npm run dev -w services/customer-service\"",
+    "dev": "concurrently -n \"gateway,product-svc,customer-svc,reco-svc\" -c \"blue,green,yellow,magenta\" \"npm run dev -w services/gateway\" \"npm run dev -w services/product-service\" \"npm run dev -w services/customer-service\" \"npm run dev -w services/recommendation-service\"",
     "seed": "node packages/database/seed.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:gateway": "jest services/gateway",
     "test:products": "jest services/product-service",
-    "test:customers": "jest services/customer-service"
+    "test:customers": "jest services/customer-service",
+    "test:recommendations": "jest services/recommendation-service"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

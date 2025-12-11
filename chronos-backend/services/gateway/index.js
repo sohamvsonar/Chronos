@@ -105,6 +105,18 @@ async function start() {
       });
     });
 
+    // Proxy to Recommendation Service
+    await app.register(async function (fastify) {
+      fastify.addHook('preHandler', fastify.authenticate);
+
+      await fastify.register(httpProxy, {
+        upstream: process.env.RECOMMENDATION_SERVICE_URL || 'http://localhost:3003',
+        prefix: '/recommendations',
+        rewritePrefix: '/recommendations',
+        http2: false,
+      });
+    });
+
     // Start server
     await app.listen({ port: PORT, host: '0.0.0.0' });
     console.log(`🚀 API Gateway running on http://localhost:${PORT}`);

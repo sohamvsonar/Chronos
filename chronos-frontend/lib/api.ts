@@ -84,6 +84,33 @@ export interface UpdateWeightsRequest {
   content: number;
 }
 
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  pricePerUnit: number;
+  totalPrice: number;
+}
+
+export interface Order {
+  id: number;
+  order_number: string;
+  customer_id: string;
+  total_amount: number;
+  status: string;
+  payment_method: string;
+  created_at: string;
+  updated_at: string;
+  items: OrderItem[];
+}
+
+export interface OrdersResponse {
+  success: boolean;
+  userId: string;
+  orders: Order[];
+  count: number;
+}
+
 export const api = {
   async getToken(userId: string, email: string): Promise<string> {
     console.log('🌐 API: POST /auth/token', { userId, email });
@@ -243,6 +270,23 @@ export const api = {
       throw new Error(data.error || 'Failed to update weights');
     }
 
+    return data;
+  },
+
+  // Orders: Get all orders for a user
+  async getOrders(userId: string): Promise<OrdersResponse> {
+    console.log('🌐 API: GET /orders/:userId', { userId });
+    const response = await fetch(`${API_BASE_URL}/orders/${userId}`, {
+      headers: getAuthHeaders(),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch orders');
+    }
+
+    const data = await response.json();
+    console.log('📥 API: Orders data:', data);
     return data;
   },
 };

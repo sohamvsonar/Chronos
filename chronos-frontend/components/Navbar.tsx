@@ -44,6 +44,7 @@ export default function Navbar() {
             >
               Collection
             </Link>
+            {user && user.id !== 'guest' && user.id !== 'admin' && (              <Link                href="/orders"                className="text-[#808080] hover:text-[#d4af37] transition-colors duration-300 text-sm tracking-wide"              >                Orders              </Link>            )}
 
             {/* User Selector */}
             <div className="relative">

@@ -123,7 +123,7 @@ export const api = {
     return data.data || [];
   },
 
-  async getProduct(id: string): Promise<Product> {
+  async getProduct(id: string, skipCache: boolean = false): Promise<Product> {
     console.log('🌐 API: GET /products/:id', { id });
     const response = await fetch(`${API_BASE_URL}/products/${id}`, {
       headers: getAuthHeaders(),

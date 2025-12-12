@@ -65,15 +65,8 @@ export default function ProductDetailPage() {
         'success'
       );
 
-      // Refresh product to get updated stock
-      setTimeout(async () => {
-        try {
-          const updatedProduct = await api.getProduct(product.id);
-          setProduct(updatedProduct);
-        } catch (error) {
-          console.error('Failed to refresh product:', error);
-        }
-      }, 500);
+      // Optimistically update stock immediately
+      setProduct(prev => prev ? { ...prev, stock: prev.stock - 1 } : null);
     } catch (error: any) {
       if (error.message.includes('Insufficient stock')) {
         showToast('Sorry, this item is out of stock', 'error');

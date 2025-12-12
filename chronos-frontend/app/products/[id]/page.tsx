@@ -96,14 +96,14 @@ export default function ProductDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="h-8 bg-[#2d2d2d] rounded w-1/4 mb-8"></div>
           <div className="grid md:grid-cols-2 gap-12">
-            <div className="bg-gray-200 h-96 rounded-lg"></div>
+            <div className="bg-[#2d2d2d] h-96 rounded-lg"></div>
             <div>
-              <div className="h-10 bg-gray-200 rounded mb-4"></div>
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-8"></div>
-              <div className="h-32 bg-gray-200 rounded mb-8"></div>
-              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-[#2d2d2d] rounded mb-4"></div>
+              <div className="h-6 bg-[#2d2d2d] rounded w-1/3 mb-8"></div>
+              <div className="h-32 bg-[#2d2d2d] rounded mb-8"></div>
+              <div className="h-12 bg-[#2d2d2d] rounded"></div>
             </div>
           </div>
         </div>
@@ -114,8 +114,8 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h1>
-        <Link href="/" className="text-purple-600 hover:text-purple-700">
+        <h1 className="text-2xl font-bold text-[#e5e5e5] mb-4">Product not found</h1>
+        <Link href="/" className="text-[#d4af37] hover:text-[#f4d03f]">
           Return to homepage
         </Link>
       </div>
@@ -126,7 +126,7 @@ export default function ProductDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link
         href="/"
-        className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-8"
+        className="inline-flex items-center text-[#c0c0c0] hover:text-[#d4af37] transition-colors mb-8"
       >
         <svg
           className="w-5 h-5 mr-2"
@@ -146,31 +146,31 @@ export default function ProductDetailPage() {
 
       <div className="grid md:grid-cols-2 gap-12">
         {/* Product Image */}
-        <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg aspect-square flex items-center justify-center">
+        <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] rounded-lg aspect-square flex items-center justify-center">
           <div className="text-9xl">⌚</div>
         </div>
 
         {/* Product Details */}
         <div>
           <div className="mb-6">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-[#e5e5e5] mb-2">
               {product.name}
             </h1>
-            <p className="text-xl text-gray-600">{product.brand}</p>
+            <p className="text-xl text-[#c0c0c0]">{product.brand}</p>
           </div>
 
           <div className="mb-8">
             <div className="flex items-baseline gap-4 mb-4">
-              <span className="text-4xl font-bold text-gray-900">
+              <span className="text-4xl font-bold text-[#d4af37]">
                 ${product.price.toLocaleString()}
               </span>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   product.stock === 0
-                    ? 'bg-red-100 text-red-800'
+                    ? 'bg-red-900/30 text-red-400 border border-red-800'
                     : product.stock < 5
-                    ? 'bg-orange-100 text-orange-800'
-                    : 'bg-green-100 text-green-800'
+                    ? 'bg-orange-900/30 text-orange-400 border border-orange-800'
+                    : 'bg-green-900/30 text-green-400 border border-green-800'
                 }`}
               >
                 {product.stock === 0
@@ -181,31 +181,31 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            <h2 className="text-lg font-semibold text-[#d4af37] mb-2">
               Details
             </h2>
             <dl className="grid grid-cols-2 gap-4">
               <div>
-                <dt className="text-sm text-gray-600">Brand</dt>
-                <dd className="text-base font-medium text-gray-900">
+                <dt className="text-sm text-[#c0c0c0]">Brand</dt>
+                <dd className="text-base font-medium text-[#e5e5e5]">
                   {product.brand}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm text-gray-600">Category</dt>
-                <dd className="text-base font-medium text-gray-900">
+                <dt className="text-sm text-[#c0c0c0]">Category</dt>
+                <dd className="text-base font-medium text-[#e5e5e5]">
                   {product.category}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm text-gray-600">Product ID</dt>
-                <dd className="text-base font-medium text-gray-900">
+                <dt className="text-sm text-[#c0c0c0]">Product ID</dt>
+                <dd className="text-base font-medium text-[#e5e5e5]">
                   {product.id}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm text-gray-600">Availability</dt>
-                <dd className="text-base font-medium text-gray-900">
+                <dt className="text-sm text-[#c0c0c0]">Availability</dt>
+                <dd className="text-base font-medium text-[#e5e5e5]">
                   {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                 </dd>
               </div>
@@ -214,20 +214,20 @@ export default function ProductDetailPage() {
 
           {product.metadata?.description && (
             <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              <h2 className="text-lg font-semibold text-[#d4af37] mb-2">
                 Description
               </h2>
-              <p className="text-gray-700">{product.metadata.description}</p>
+              <p className="text-[#c0c0c0]">{product.metadata.description}</p>
             </div>
           )}
 
           <button
             onClick={handleBuyNow}
             disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
-            className={`w-full py-4 px-6 rounded-lg text-white font-semibold text-lg transition-all ${
+            className={`w-full py-4 px-6 rounded-lg font-semibold text-[#0a0a0a] text-lg transition-all ${
               isPurchasing || product.stock === 0 || user?.id === 'guest'
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-purple-600 hover:bg-purple-700 active:scale-95'
+                ? 'bg-[#2d2d2d] text-[#606060] cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-lg hover:shadow-[#d4af37]/20 active:scale-95'
             }`}
           >
             {isPurchasing
@@ -240,7 +240,7 @@ export default function ProductDetailPage() {
           </button>
 
           {user?.id === 'guest' && (
-            <p className="text-sm text-gray-600 mt-4 text-center">
+            <p className="text-sm text-[#c0c0c0] mt-4 text-center">
               Please select a user from the navbar to make a purchase
             </p>
           )}

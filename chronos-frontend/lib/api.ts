@@ -133,7 +133,7 @@ export const api = {
     return data.token;
   },
 
-  async getProducts(limit: number = 15): Promise<Product[]> {
+  async getProducts(limit: number = 1000): Promise<Product[]> {
     console.log('🌐 API: GET /products');
     console.log('📤 API: Headers:', getAuthHeaders());
     const response = await fetch(`${API_BASE_URL}/products?limit=${limit}`, {

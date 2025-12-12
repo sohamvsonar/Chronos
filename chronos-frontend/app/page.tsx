@@ -12,6 +12,21 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingRecs, setIsLoadingRecs] = useState(true);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isBrandDropdownOpen, setIsBrandDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+  // Get unique brands and categories from products
+  const brands = [...new Set(products.map(p => p.brand))].sort();
+  const categories = [...new Set(products.map(p => p.category))].sort();
+
+  // Filter products based on selected filters
+  const filteredProducts = products.filter(product => {
+    if (selectedBrand && product.brand !== selectedBrand) return false;
+    if (selectedCategory && product.category !== selectedCategory) return false;
+    return true;
+  });
 
   useEffect(() => {
     async function fetchRecommendations() {
@@ -66,19 +81,19 @@ export default function HomePage() {
           }} />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
           <div className="text-center">
             {/* Logo/Brand */}
-            <div className="mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full border-2 border-[#d4af37]/30 mb-6">
-                <svg className="w-10 h-10 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mb-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#d4af37]/30 mb-4">
+                <svg className="w-6 h-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
                   <path strokeLinecap="round" strokeWidth="1.5" d="M12 6v6l4 2" />
                 </svg>
               </div>
             </div>
 
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight text-white mb-6">
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-white mb-4">
               <span className="text-[#d4af37]">CHRONOS</span>
             </h1>
 
@@ -111,7 +126,7 @@ export default function HomePage() {
       {!isAdmin && (
         <section className="py-20 bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-8">
               <p className="text-[#d4af37] text-sm tracking-[0.3em] uppercase mb-4">
                 {recommendations?.coldStart ? 'Most Coveted' : 'Selected For You'}
               </p>
@@ -171,8 +186,147 @@ export default function HomePage() {
             </h2>
             <div className="w-16 h-px bg-[#d4af37] mx-auto mb-6" />
             <p className="text-[#808080]">
-              {products.length} exceptional timepieces await your consideration
+              {filteredProducts.length} of {products.length} exceptional timepieces
             </p>
+          </div>
+
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
+            {/* Brand Filter */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsBrandDropdownOpen(!isBrandDropdownOpen);
+                  setIsCategoryDropdownOpen(false);
+                }}
+                className={`flex items-center gap-2 px-5 py-2.5 border transition-all duration-300 ${
+                  selectedBrand
+                    ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]'
+                    : 'border-[#2a2a2a] hover:border-[#d4af37]/30 text-[#808080] hover:text-white'
+                }`}
+              >
+                <span className="text-sm tracking-wide">
+                  {selectedBrand || 'All Brands'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-300 ${isBrandDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isBrandDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsBrandDropdownOpen(false)} />
+                  <div className="absolute left-0 mt-2 w-56 bg-[#111111] border border-[#2a2a2a] shadow-2xl z-50 max-h-64 overflow-y-auto">
+                    <button
+                      onClick={() => {
+                        setSelectedBrand(null);
+                        setIsBrandDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                        !selectedBrand ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-[#808080] hover:bg-[#1a1a1a] hover:text-white'
+                      }`}
+                    >
+                      All Brands
+                    </button>
+                    {brands.map((brand) => (
+                      <button
+                        key={brand}
+                        onClick={() => {
+                          setSelectedBrand(brand);
+                          setIsBrandDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                          selectedBrand === brand ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-[#808080] hover:bg-[#1a1a1a] hover:text-white'
+                        }`}
+                      >
+                        {brand}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Category Filter */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+                  setIsBrandDropdownOpen(false);
+                }}
+                className={`flex items-center gap-2 px-5 py-2.5 border transition-all duration-300 ${
+                  selectedCategory
+                    ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]'
+                    : 'border-[#2a2a2a] hover:border-[#d4af37]/30 text-[#808080] hover:text-white'
+                }`}
+              >
+                <span className="text-sm tracking-wide capitalize">
+                  {selectedCategory || 'All Categories'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-300 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isCategoryDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)} />
+                  <div className="absolute left-0 mt-2 w-56 bg-[#111111] border border-[#2a2a2a] shadow-2xl z-50 max-h-64 overflow-y-auto">
+                    <button
+                      onClick={() => {
+                        setSelectedCategory(null);
+                        setIsCategoryDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                        !selectedCategory ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-[#808080] hover:bg-[#1a1a1a] hover:text-white'
+                      }`}
+                    >
+                      All Categories
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setIsCategoryDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm capitalize transition-colors ${
+                          selectedCategory === category ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'text-[#808080] hover:bg-[#1a1a1a] hover:text-white'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Clear Filters */}
+            {(selectedBrand || selectedCategory) && (
+              <button
+                onClick={() => {
+                  setSelectedBrand(null);
+                  setSelectedCategory(null);
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 text-[#808080] hover:text-[#d4af37] transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span className="text-sm">Clear Filters</span>
+              </button>
+            )}
           </div>
 
           {isLoadingProducts ? (
@@ -181,13 +335,31 @@ export default function HomePage() {
                 <LoadingCard key={i} />
               ))}
             </div>
-          ) : (
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products
+              {filteredProducts
                 .filter(product => product && product.id)
                 .map((product, index) => (
                   <ProductCard key={`product-${product.id}-${index}`} product={product} />
                 ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-[#2a2a2a] mb-6">
+                <svg className="w-8 h-8 text-[#666666]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p className="text-[#808080] mb-4">No timepieces match your selected filters</p>
+              <button
+                onClick={() => {
+                  setSelectedBrand(null);
+                  setSelectedCategory(null);
+                }}
+                className="text-[#d4af37] hover:text-[#f4d03f] text-sm transition-colors"
+              >
+                Clear all filters
+              </button>
             </div>
           )}
         </div>

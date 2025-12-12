@@ -78,7 +78,7 @@
       }
     ],
     "total_amount": 5200.00,
-    "status": "pending",
+    "status": "completed",
     "payment_method": "credit_card",
     "shipping_address": {
       "street": "321 Michigan Avenue",
@@ -112,23 +112,243 @@
   },
   {
     "order_number": "ORD-2023-006",
-    "customer_id": "cust_009",
+    "customer_id": "cust_001",
     "items": [
       {
-        "product_id": "prod_005",
-        "product_name": "TAG Heuer Carrera Chronograph",
+        "product_id": "prod_004",
+        "product_name": "Audemars Piguet Royal Oak",
         "quantity": 1,
-        "price": 5200.00
+        "price": 72000.00
       }
     ],
-    "total_amount": 3200.00,
+    "total_amount": 72000.00,
+    "status": "completed",
+    "payment_method": "wire_transfer",
+    "shipping_address": {
+      "street": "123 Park Avenue",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10001",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-007",
+    "customer_id": "cust_002",
+    "items": [
+      {
+        "product_id": "prod_015",
+        "product_name": "Omega Seamaster Diver 300M",
+        "quantity": 1,
+        "price": 5400.00
+      }
+    ],
+    "total_amount": 5400.00,
     "status": "completed",
     "payment_method": "credit_card",
     "shipping_address": {
-      "street": "369 Congress Avenue",
-      "city": "Austin",
-      "state": "TX",
-      "zip": "78701",
+      "street": "456 Beverly Hills Blvd",
+      "city": "Los Angeles",
+      "state": "CA",
+      "zip": "90210",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-008",
+    "customer_id": "cust_003",
+    "items": [
+      {
+        "product_id": "prod_012",
+        "product_name": "Rolex GMT-Master II",
+        "quantity": 1,
+        "price": 17800.00
+      }
+    ],
+    "total_amount": 17800.00,
+    "status": "completed",
+    "payment_method": "wire_transfer",
+    "shipping_address": {
+      "street": "789 Market Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94103",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-009",
+    "customer_id": "cust_004",
+    "items": [
+      {
+        "product_id": "prod_009",
+        "product_name": "Breitling Navitimer",
+        "quantity": 1,
+        "price": 8700.00
+      }
+    ],
+    "total_amount": 8700.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "321 Michigan Avenue",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60611",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-010",
+    "customer_id": "cust_005",
+    "items": [
+      {
+        "product_id": "prod_008",
+        "product_name": "Jaeger-LeCoultre Reverso",
+        "quantity": 1,
+        "price": 8900.00
+      }
+    ],
+    "total_amount": 8900.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "654 Ocean Drive",
+      "city": "Miami",
+      "state": "FL",
+      "zip": "33139",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-011",
+    "customer_id": "cust_006",
+    "items": [
+      {
+        "product_id": "prod_003",
+        "product_name": "Patek Philippe Nautilus",
+        "quantity": 1,
+        "price": 89000.00
+      }
+    ],
+    "total_amount": 89000.00,
+    "status": "completed",
+    "payment_method": "wire_transfer",
+    "shipping_address": {
+      "street": "999 Fifth Avenue",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10028",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-012",
+    "customer_id": "cust_006",
+    "items": [
+      {
+        "product_id": "prod_010",
+        "product_name": "Vacheron Constantin Overseas",
+        "quantity": 1,
+        "price": 32000.00
+      }
+    ],
+    "total_amount": 32000.00,
+    "status": "completed",
+    "payment_method": "wire_transfer",
+    "shipping_address": {
+      "street": "999 Fifth Avenue",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10028",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-013",
+    "customer_id": "cust_007",
+    "items": [
+      {
+        "product_id": "prod_001",
+        "product_name": "Rolex Submariner Date",
+        "quantity": 1,
+        "price": 14500.00
+      }
+    ],
+    "total_amount": 14500.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "777 Rodeo Drive",
+      "city": "Beverly Hills",
+      "state": "CA",
+      "zip": "90210",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-014",
+    "customer_id": "cust_007",
+    "items": [
+      {
+        "product_id": "prod_038",
+        "product_name": "Tudor Black Bay",
+        "quantity": 1,
+        "price": 4200.00
+      }
+    ],
+    "total_amount": 4200.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "777 Rodeo Drive",
+      "city": "Beverly Hills",
+      "state": "CA",
+      "zip": "90210",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-015",
+    "customer_id": "cust_008",
+    "items": [
+      {
+        "product_id": "prod_002",
+        "product_name": "Omega Speedmaster Professional",
+        "quantity": 1,
+        "price": 6800.00
+      }
+    ],
+    "total_amount": 6800.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "555 Lake Shore Drive",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60611",
+      "country": "USA"
+    }
+  },
+  {
+    "order_number": "ORD-2023-016",
+    "customer_id": "cust_008",
+    "items": [
+      {
+        "product_id": "prod_044",
+        "product_name": "Zenith El Primero",
+        "quantity": 1,
+        "price": 9200.00
+      }
+    ],
+    "total_amount": 9200.00,
+    "status": "completed",
+    "payment_method": "credit_card",
+    "shipping_address": {
+      "street": "555 Lake Shore Drive",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60611",
       "country": "USA"
     }
   }

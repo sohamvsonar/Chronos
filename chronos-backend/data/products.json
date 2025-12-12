@@ -168,5 +168,685 @@
       "condition": "New",
       "warranty_years": 3
     }
+  },
+  {
+    "id": "prod_011",
+    "name": "Rolex Daytona",
+    "brand": "Rolex",
+    "price": 29500.00,
+    "stock": 2,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_012",
+    "name": "Rolex GMT-Master II",
+    "brand": "Rolex",
+    "price": 17800.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_013",
+    "name": "Rolex Datejust 41",
+    "brand": "Rolex",
+    "price": 11200.00,
+    "stock": 6,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_014",
+    "name": "Rolex Explorer II",
+    "brand": "Rolex",
+    "price": 12500.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_015",
+    "name": "Omega Seamaster Diver 300M",
+    "brand": "Omega",
+    "price": 5400.00,
+    "stock": 7,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_016",
+    "name": "Omega Constellation",
+    "brand": "Omega",
+    "price": 6200.00,
+    "stock": 5,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "39mm",
+      "water_resistance": "50m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_017",
+    "name": "Omega Aqua Terra",
+    "brand": "Omega",
+    "price": 5800.00,
+    "stock": 6,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "150m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_018",
+    "name": "Omega Planet Ocean",
+    "brand": "Omega",
+    "price": 7200.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "43.5mm",
+      "water_resistance": "600m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_019",
+    "name": "Patek Philippe Calatrava",
+    "brand": "Patek Philippe",
+    "price": 32000.00,
+    "stock": 2,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "White Gold",
+      "case_diameter": "39mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_020",
+    "name": "Patek Philippe Aquanaut",
+    "brand": "Patek Philippe",
+    "price": 52000.00,
+    "stock": 1,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42.2mm",
+      "water_resistance": "120m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_021",
+    "name": "Audemars Piguet Royal Oak Offshore",
+    "brand": "Audemars Piguet",
+    "price": 48000.00,
+    "stock": 2,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "44mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_022",
+    "name": "Audemars Piguet Code 11.59",
+    "brand": "Audemars Piguet",
+    "price": 35000.00,
+    "stock": 3,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "White Gold",
+      "case_diameter": "41mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_023",
+    "name": "TAG Heuer Monaco",
+    "brand": "TAG Heuer",
+    "price": 6500.00,
+    "stock": 5,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "39mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_024",
+    "name": "TAG Heuer Aquaracer",
+    "brand": "TAG Heuer",
+    "price": 3200.00,
+    "stock": 10,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "43mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_025",
+    "name": "TAG Heuer Formula 1",
+    "brand": "TAG Heuer",
+    "price": 1800.00,
+    "stock": 12,
+    "category": "sport",
+    "metadata": {
+      "movement": "Quartz",
+      "case_material": "Stainless Steel",
+      "case_diameter": "43mm",
+      "water_resistance": "200m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 2
+    }
+  },
+  {
+    "id": "prod_026",
+    "name": "Cartier Tank Francaise",
+    "brand": "Cartier",
+    "price": 4900.00,
+    "stock": 6,
+    "category": "dress",
+    "metadata": {
+      "movement": "Quartz",
+      "case_material": "Stainless Steel",
+      "case_diameter": "32mm x 27mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_027",
+    "name": "Cartier Ballon Bleu",
+    "brand": "Cartier",
+    "price": 6900.00,
+    "stock": 4,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_028",
+    "name": "Cartier Panthere",
+    "brand": "Cartier",
+    "price": 5200.00,
+    "stock": 5,
+    "category": "dress",
+    "metadata": {
+      "movement": "Quartz",
+      "case_material": "Stainless Steel",
+      "case_diameter": "27mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_029",
+    "name": "IWC Big Pilot",
+    "brand": "IWC",
+    "price": 14800.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "46.2mm",
+      "water_resistance": "60m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_030",
+    "name": "IWC Pilot's Watch Chronograph",
+    "brand": "IWC",
+    "price": 7500.00,
+    "stock": 5,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "43mm",
+      "water_resistance": "60m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_031",
+    "name": "Jaeger-LeCoultre Master Ultra Thin",
+    "brand": "Jaeger-LeCoultre",
+    "price": 11500.00,
+    "stock": 2,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "50m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_032",
+    "name": "Jaeger-LeCoultre Polaris",
+    "brand": "Jaeger-LeCoultre",
+    "price": 9800.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "200m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_033",
+    "name": "Breitling Superocean",
+    "brand": "Breitling",
+    "price": 5200.00,
+    "stock": 7,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "44mm",
+      "water_resistance": "500m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_034",
+    "name": "Breitling Chronomat",
+    "brand": "Breitling",
+    "price": 8200.00,
+    "stock": 5,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "200m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_035",
+    "name": "Breitling Avenger",
+    "brand": "Breitling",
+    "price": 6800.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "45mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_036",
+    "name": "Vacheron Constantin Patrimony",
+    "brand": "Vacheron Constantin",
+    "price": 28000.00,
+    "stock": 2,
+    "category": "dress",
+    "metadata": {
+      "movement": "Manual",
+      "case_material": "White Gold",
+      "case_diameter": "40mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  },
+  {
+    "id": "prod_037",
+    "name": "Vacheron Constantin Traditionnelle",
+    "brand": "Vacheron Constantin",
+    "price": 42000.00,
+    "stock": 1,
+    "category": "dress",
+    "metadata": {
+      "movement": "Manual",
+      "case_material": "Rose Gold",
+      "case_diameter": "38mm",
+      "water_resistance": "30m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  },
+  {
+    "id": "prod_038",
+    "name": "Tudor Black Bay",
+    "brand": "Tudor",
+    "price": 4200.00,
+    "stock": 8,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "200m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_039",
+    "name": "Tudor Pelagos",
+    "brand": "Tudor",
+    "price": 5100.00,
+    "stock": 5,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Titanium",
+      "case_diameter": "42mm",
+      "water_resistance": "500m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_040",
+    "name": "Tudor Royal",
+    "brand": "Tudor",
+    "price": 2900.00,
+    "stock": 9,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "41mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_041",
+    "name": "Grand Seiko Snowflake",
+    "brand": "Grand Seiko",
+    "price": 5800.00,
+    "stock": 4,
+    "category": "dress",
+    "metadata": {
+      "movement": "Spring Drive",
+      "case_material": "Titanium",
+      "case_diameter": "41mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  },
+  {
+    "id": "prod_042",
+    "name": "Grand Seiko Heritage",
+    "brand": "Grand Seiko",
+    "price": 4200.00,
+    "stock": 6,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "40mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  },
+  {
+    "id": "prod_043",
+    "name": "Grand Seiko Sport",
+    "brand": "Grand Seiko",
+    "price": 6500.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Spring Drive",
+      "case_material": "Stainless Steel",
+      "case_diameter": "44mm",
+      "water_resistance": "200m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 3
+    }
+  },
+  {
+    "id": "prod_044",
+    "name": "Zenith El Primero",
+    "brand": "Zenith",
+    "price": 9200.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_045",
+    "name": "Zenith Chronomaster",
+    "brand": "Zenith",
+    "price": 10500.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "42mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_046",
+    "name": "Panerai Luminor Marina",
+    "brand": "Panerai",
+    "price": 8900.00,
+    "stock": 4,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "44mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_047",
+    "name": "Panerai Submersible",
+    "brand": "Panerai",
+    "price": 11500.00,
+    "stock": 3,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Stainless Steel",
+      "case_diameter": "47mm",
+      "water_resistance": "300m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_048",
+    "name": "Panerai Radiomir",
+    "brand": "Panerai",
+    "price": 7500.00,
+    "stock": 5,
+    "category": "dress",
+    "metadata": {
+      "movement": "Manual",
+      "case_material": "Stainless Steel",
+      "case_diameter": "45mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 8
+    }
+  },
+  {
+    "id": "prod_049",
+    "name": "Hublot Big Bang",
+    "brand": "Hublot",
+    "price": 18500.00,
+    "stock": 2,
+    "category": "sport",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Titanium",
+      "case_diameter": "44mm",
+      "water_resistance": "100m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
+  },
+  {
+    "id": "prod_050",
+    "name": "Hublot Classic Fusion",
+    "brand": "Hublot",
+    "price": 12000.00,
+    "stock": 3,
+    "category": "dress",
+    "metadata": {
+      "movement": "Automatic",
+      "case_material": "Titanium",
+      "case_diameter": "42mm",
+      "water_resistance": "50m",
+      "year": 2023,
+      "condition": "New",
+      "warranty_years": 5
+    }
   }
 ]

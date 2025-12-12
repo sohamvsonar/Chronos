@@ -228,12 +228,18 @@ function normalizeScores(items, scoreField) {
   const scores = items.map(item => parseFloat(item[scoreField]) || 0);
   const maxScore = Math.max(...scores);
   const minScore = Math.min(...scores);
-  const range = maxScore - minScore || 1;
+  const range = maxScore - minScore;
 
-  return items.map(item => ({
-    ...item,
-    [`${scoreField}_normalized`]: (parseFloat(item[scoreField]) - minScore) / range
-  }));
+  return items.map(item => {
+    const score = parseFloat(item[scoreField]) || 0;
+    // If all items have the same score (range = 0), normalize to 1.0
+    // This ensures single collaborative results get proper weight
+    const normalizedScore = range === 0 ? 1.0 : (score - minScore) / range;
+    return {
+      ...item,
+      [`${scoreField}_normalized`]: normalizedScore
+    };
+  });
 }
 
 // Hybrid scoring and ranking
@@ -361,9 +367,15 @@ app.get('/recommendations/:userId', async (request, reply) => {
 
     app.log.info(`Content-based found ${contentBased.length} products`);
     app.log.info(`Collaborative found ${collaborative.length} products`);
+    app.log.info(`Using weights: content=${weights.content}, collaborative=${weights.collaborative}`);
 
     // Combine and rank recommendations
     const recommendations = combineRecommendations(contentBased, collaborative, weights);
+
+    // Log the recommendation scores for debugging
+    recommendations.forEach((rec, idx) => {
+      app.log.info(`Rank ${idx + 1}: ${rec.name} - content=${rec.scores.content}, collab=${rec.scores.collaborative}, hybrid=${rec.scores.hybrid}`);
+    });
 
     // If still no recommendations, fall back to top-selling
     if (recommendations.length === 0) {

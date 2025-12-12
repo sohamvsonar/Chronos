@@ -106,10 +106,10 @@ export const api = {
     return data.token;
   },
 
-  async getProducts(): Promise<Product[]> {
+  async getProducts(limit: number = 15): Promise<Product[]> {
     console.log('🌐 API: GET /products');
     console.log('📤 API: Headers:', getAuthHeaders());
-    const response = await fetch(`${API_BASE_URL}/products`, {
+    const response = await fetch(`${API_BASE_URL}/products?limit=${limit}`, {
       headers: getAuthHeaders(),
     });
     console.log('📡 API: Response status:', response.status);
@@ -158,23 +158,29 @@ export const api = {
 
     // Transform backend response to match frontend TypeScript interface
     // Backend returns product fields at top level, we need them nested under 'product'
+    // Backend returns scores as: { scores: { content, collaborative, hybrid } }
     const data: RecommendationResponse = {
       success: rawData.success,
       userId: rawData.user_id || userId,
-      recommendations: (rawData.recommendations || []).map((rec: any) => ({
-        productId: rec.id,
-        score: rec.score || rec.hybrid_score || 1.0,
-        source: rec.source || rawData.strategy || 'hybrid',
-        product: {
-          id: rec.id,
-          name: rec.name,
-          brand: rec.brand,
-          price: parseFloat(rec.price) || rec.price,
-          stock: rec.stock,
-          category: rec.category,
-          metadata: rec.metadata
-        }
-      })),
+      recommendations: (rawData.recommendations || []).map((rec: any) => {
+        // Extract hybrid score from nested scores object
+        const hybridScore = rec.scores?.hybrid || rec.score || rec.hybrid_score || 1.0;
+        console.log(`📊 Product ${rec.name}: content=${rec.scores?.content}, collab=${rec.scores?.collaborative}, hybrid=${hybridScore}`);
+        return {
+          productId: rec.id,
+          score: hybridScore,
+          source: rec.source || rawData.strategy || 'hybrid',
+          product: {
+            id: rec.id,
+            name: rec.name,
+            brand: rec.brand,
+            price: parseFloat(rec.price) || rec.price,
+            stock: rec.stock,
+            category: rec.category,
+            metadata: rec.metadata
+          }
+        };
+      }),
       count: rawData.count || rawData.recommendations?.length || 0,
       weights: rawData.weights || { collaborative: 0.5, content: 0.5 },
       coldStart: rawData.strategy === 'cold-start'

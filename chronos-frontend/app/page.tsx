@@ -110,6 +110,12 @@ export default function HomePage() {
                   ? 'Best-selling watches from our collection'
                   : 'Personalized recommendations based on your preferences'}
               </p>
+              {/* Show current weights for debugging */}
+              {recommendations?.weights && !recommendations.coldStart && (
+                <p className="text-sm text-purple-600 mt-2">
+                  Weights: Content {Math.round(recommendations.weights.content * 100)}% | Collaborative {Math.round(recommendations.weights.collaborative * 100)}%
+                </p>
+              )}
             </div>
 
             {isLoadingRecs ? (

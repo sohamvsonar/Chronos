@@ -197,6 +197,15 @@ app.post('/checkout', async (request, reply) => {
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
+    // Normalize items to snake_case before storing in orders.items
+    const normalizedItems = orderItems.map(item => ({
+      product_id: item.productId,
+      product_name: item.productName,
+      quantity: item.quantity,
+      price_per_unit: item.pricePerUnit,
+      total_price: item.totalPrice
+    }));
+
     // Create Order
     const orderResult = await client.query(
       `INSERT INTO orders (order_number, customer_id, items, total_amount, status, payment_method, shipping_address)
@@ -205,7 +214,7 @@ app.post('/checkout', async (request, reply) => {
       [
         orderNumber,
         userId,
-        JSON.stringify(items),
+        JSON.stringify(normalizedItems),
         totalAmount,
         'pending',
         'credit_card', // Default payment method

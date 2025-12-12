@@ -70,7 +70,7 @@ async function getWeights() {
   return defaultWeights;
 }
 
-// Content-Based Filtering
+// Content-Based Filtering - recommends based on user's purchase preferences
 async function getContentBasedRecommendations(userId) {
   try {
     // Step 1: Get user's purchase history
@@ -78,7 +78,7 @@ async function getContentBasedRecommendations(userId) {
       `SELECT DISTINCT p.id, p.name, p.brand, p.category, p.price, p.metadata
        FROM orders o
        JOIN LATERAL (
-         SELECT (item->>'product_id')::text as product_id
+         SELECT (COALESCE(item->>'product_id', item->>'productId'))::text as product_id
          FROM jsonb_array_elements(o.items) as item
        ) oi ON true
        JOIN products p ON p.id = oi.product_id
@@ -93,7 +93,7 @@ async function getContentBasedRecommendations(userId) {
     const purchasedProducts = purchaseHistory.rows;
     const purchasedIds = purchasedProducts.map(p => p.id);
 
-    // Step 2: Extract top attributes
+    // Step 2: Extract all preferred brands and categories with weights
     const brandCounts = {};
     const categoryCounts = {};
 
@@ -102,28 +102,36 @@ async function getContentBasedRecommendations(userId) {
       categoryCounts[product.category] = (categoryCounts[product.category] || 0) + 1;
     });
 
-    // Get top brand and category
-    const topBrand = Object.keys(brandCounts).sort((a, b) => brandCounts[b] - brandCounts[a])[0];
-    const topCategory = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a])[0];
+    // Get top brands and categories (can have multiple preferences)
+    const sortedBrands = Object.keys(brandCounts).sort((a, b) => brandCounts[b] - brandCounts[a]);
+    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
 
-    app.log.info(`Content-based: User ${userId} prefers brand=${topBrand}, category=${topCategory}`);
+    const topBrand = sortedBrands[0];
+    const topCategory = sortedCategories[0];
+    const secondBrand = sortedBrands[1] || topBrand;
+    const secondCategory = sortedCategories[1] || topCategory;
 
-    // Step 3: Find similar products (not already purchased)
+    app.log.info(`Content-based: User ${userId} prefers brands=[${topBrand}, ${secondBrand}], categories=[${topCategory}, ${secondCategory}]`);
+
+    // Step 3: Find products with content scores (include ALL products, not just matching ones)
     const similarProducts = await db.query(
       `SELECT p.*,
               CASE
                 WHEN p.brand = $1 AND p.category = $2 THEN 1.0
+                WHEN p.brand = $1 AND p.category = $4 THEN 0.9
+                WHEN p.brand = $3 AND p.category = $2 THEN 0.85
                 WHEN p.brand = $1 THEN 0.7
-                WHEN p.category = $2 THEN 0.6
-                ELSE 0.3
+                WHEN p.brand = $3 THEN 0.6
+                WHEN p.category = $2 THEN 0.5
+                WHEN p.category = $4 THEN 0.4
+                ELSE 0.2
               END as content_score
        FROM products p
-       WHERE p.id != ALL($3::text[])
+       WHERE p.id != ALL($5::text[])
          AND p.stock > 0
-         AND (p.brand = $1 OR p.category = $2)
        ORDER BY content_score DESC, p.price DESC
        LIMIT 10`,
-      [topBrand, topCategory, purchasedIds]
+      [topBrand, topCategory, secondBrand, secondCategory, purchasedIds]
     );
 
     return similarProducts.rows;
@@ -133,14 +141,14 @@ async function getContentBasedRecommendations(userId) {
   }
 }
 
-// Collaborative Filtering
+// Collaborative Filtering - finds what similar users bought, falls back to top-selling
 async function getCollaborativeRecommendations(userId) {
   try {
     // Find users who bought similar products
     const collaborativeQuery = await db.query(
-      `WITH user_purchases AS (
+       `WITH user_purchases AS (
          -- Get products the target user has purchased
-         SELECT DISTINCT (item->>'product_id')::text as product_id
+         SELECT DISTINCT (COALESCE(item->>'product_id', item->>'productId'))::text as product_id
          FROM orders o
          CROSS JOIN jsonb_array_elements(o.items) as item
          WHERE o.customer_id = $1
@@ -150,21 +158,21 @@ async function getCollaborativeRecommendations(userId) {
          SELECT DISTINCT o.customer_id, COUNT(*) as common_products
          FROM orders o
          CROSS JOIN jsonb_array_elements(o.items) as item
-         WHERE (item->>'product_id')::text IN (SELECT product_id FROM user_purchases)
+         WHERE (COALESCE(item->>'product_id', item->>'productId'))::text IN (SELECT product_id FROM user_purchases)
            AND o.customer_id != $1
          GROUP BY o.customer_id
          HAVING COUNT(*) >= 1
        ),
        other_products AS (
          -- Get products those similar users bought (that our user hasn't)
-         SELECT (item->>'product_id')::text as product_id,
+         SELECT (COALESCE(item->>'product_id', item->>'productId'))::text as product_id,
                 COUNT(*) as purchase_count,
                 SUM(su.common_products) as weighted_score
          FROM orders o
          JOIN similar_users su ON o.customer_id = su.customer_id
          CROSS JOIN jsonb_array_elements(o.items) as item
-         WHERE (item->>'product_id')::text NOT IN (SELECT product_id FROM user_purchases)
-         GROUP BY (item->>'product_id')::text
+         WHERE (COALESCE(item->>'product_id', item->>'productId'))::text NOT IN (SELECT product_id FROM user_purchases)
+         GROUP BY (COALESCE(item->>'product_id', item->>'productId'))::text
        )
        SELECT p.*,
               op.weighted_score as collab_score,
@@ -177,19 +185,26 @@ async function getCollaborativeRecommendations(userId) {
       [userId]
     );
 
+    // If no collaborative data found, use top-selling products as collaborative signal
+    if (collaborativeQuery.rows.length === 0) {
+      app.log.info(`No similar users found for ${userId}, using top-selling as collaborative signal`);
+      return await getTopSellingProducts(userId, 10);
+    }
+
     return collaborativeQuery.rows;
   } catch (error) {
     app.log.error('Collaborative filtering error:', error);
-    return [];
+    // Fallback to top-selling on error
+    return await getTopSellingProducts(userId, 10);
   }
 }
 
-// Get top-selling products (for cold start)
-async function getTopSellingProducts(userId) {
+// Get top-selling products (for cold start or collaborative fallback)
+async function getTopSellingProducts(userId, limit = 4) {
   try {
     // Get user's purchased products if they exist
     const purchasedIds = await db.query(
-      `SELECT DISTINCT (item->>'product_id')::text as product_id
+      `SELECT DISTINCT (COALESCE(item->>'product_id', item->>'productId'))::text as product_id
        FROM orders o
        CROSS JOIN jsonb_array_elements(o.items) as item
        WHERE o.customer_id = $1`,
@@ -198,19 +213,27 @@ async function getTopSellingProducts(userId) {
 
     const excludeIds = purchasedIds.rows.map(r => r.product_id);
 
-    // Get top-selling products globally
+    // Get top-selling products globally - fixed query
     const topSelling = await db.query(
-      `SELECT p.*,
-              COUNT(o.id) as order_count,
-              SUM((item->>'quantity')::int) as total_sold
+      `WITH product_sales AS (
+         SELECT
+           (COALESCE(item->>'product_id', item->>'productId'))::text as product_id,
+           SUM((item->>'quantity')::int) as total_sold,
+           COUNT(DISTINCT o.id) as order_count
+         FROM orders o
+         CROSS JOIN jsonb_array_elements(o.items) as item
+         GROUP BY (COALESCE(item->>'product_id', item->>'productId'))::text
+       )
+       SELECT p.*,
+              COALESCE(ps.total_sold, 0) as total_sold,
+              COALESCE(ps.order_count, 0) as order_count,
+              COALESCE(ps.total_sold, 0)::float as collab_score
        FROM products p
-       LEFT JOIN orders o ON true
-       LEFT JOIN LATERAL jsonb_array_elements(o.items) as item ON (item->>'product_id')::text = p.id
+       LEFT JOIN product_sales ps ON p.id = ps.product_id
        WHERE p.stock > 0
          ${excludeIds.length > 0 ? 'AND p.id != ALL($1::text[])' : ''}
-       GROUP BY p.id
        ORDER BY total_sold DESC NULLS LAST, p.price DESC
-       LIMIT 4`,
+       LIMIT ${limit}`,
       excludeIds.length > 0 ? [excludeIds] : []
     );
 

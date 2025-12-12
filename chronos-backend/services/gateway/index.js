@@ -117,6 +117,29 @@ async function start() {
       });
     });
 
+    // Proxy to Order Service
+    await app.register(async function (fastify) {
+      fastify.addHook('preHandler', fastify.authenticate);
+
+      await fastify.register(httpProxy, {
+        upstream: process.env.ORDER_SERVICE_URL || 'http://localhost:3004',
+        prefix: '/checkout',
+        rewritePrefix: '/checkout',
+        http2: false,
+      });
+    });
+
+    await app.register(async function (fastify) {
+      fastify.addHook('preHandler', fastify.authenticate);
+
+      await fastify.register(httpProxy, {
+        upstream: process.env.ORDER_SERVICE_URL || 'http://localhost:3004',
+        prefix: '/orders',
+        rewritePrefix: '/orders',
+        http2: false,
+      });
+    });
+
     // Start server
     await app.listen({ port: PORT, host: '0.0.0.0' });
     console.log(`🚀 API Gateway running on http://localhost:${PORT}`);

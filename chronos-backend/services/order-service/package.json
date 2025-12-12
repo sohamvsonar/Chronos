@@ -1,0 +1,17 @@
+{
+  "name": "@chronos/order-service",
+  "version": "1.0.0",
+  "description": "Chronos Order Service - Asynchronous Order Processing with BullMQ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "fastify": "^4.29.1",
+    "@chronos/database": "*",
+    "bullmq": "^5.34.0",
+    "ioredis": "^5.4.1",
+    "pino-pretty": "^11.2.2",
+    "dotenv": "^16.4.7"
+  }
+}

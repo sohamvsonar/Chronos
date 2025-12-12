@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"gateway,product-svc,customer-svc,reco-svc\" -c \"blue,green,yellow,magenta\" \"npm run dev -w services/gateway\" \"npm run dev -w services/product-service\" \"npm run dev -w services/customer-service\" \"npm run dev -w services/recommendation-service\"",
+    "dev": "concurrently -n \"gateway,product-svc,customer-svc,reco-svc,order-svc\" -c \"blue,green,yellow,magenta,cyan\" \"npm run dev -w services/gateway\" \"npm run dev -w services/product-service\" \"npm run dev -w services/customer-service\" \"npm run dev -w services/recommendation-service\" \"npm run dev -w services/order-service\"",
     "seed": "node packages/database/seed.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",

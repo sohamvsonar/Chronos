@@ -79,6 +79,27 @@ const createSchema = async () => {
       CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
     `);
 
+    // Create order_items table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        product_id VARCHAR(50) NOT NULL REFERENCES products(id),
+        quantity INTEGER NOT NULL,
+        price_per_unit DECIMAL(10, 2) NOT NULL,
+        total_price DECIMAL(10, 2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create index on order_id
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
+    `);
+
     await client.query('COMMIT');
     console.log('✓ Database schema created successfully');
   } catch (error) {
@@ -95,6 +116,7 @@ const dropSchema = async () => {
 
   try {
     await client.query('BEGIN');
+    await client.query('DROP TABLE IF EXISTS order_items CASCADE;');
     await client.query('DROP TABLE IF EXISTS orders CASCADE;');
     await client.query('DROP TABLE IF EXISTS customers CASCADE;');
     await client.query('DROP TABLE IF EXISTS products CASCADE;');

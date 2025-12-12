@@ -1,0 +1,251 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useUser } from '@/contexts/UserContext';
+import { useToast } from '@/contexts/ToastContext';
+import { api, Product } from '@/lib/api';
+
+export default function ProductDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const { user } = useUser();
+  const { showToast } = useToast();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
+  useEffect(() => {
+    async function fetchProduct() {
+      if (!params.id) return;
+
+      setIsLoading(true);
+      try {
+        const data = await api.getProduct(params.id as string);
+        setProduct(data);
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+        showToast('Failed to load product', 'error');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProduct();
+  }, [params.id, showToast]);
+
+  const handleBuyNow = async () => {
+    if (!product || !user) return;
+
+    if (user.id === 'guest') {
+      showToast('Please select a user to make a purchase', 'error');
+      return;
+    }
+
+    if (product.stock === 0) {
+      showToast('This product is out of stock', 'error');
+      return;
+    }
+
+    setIsPurchasing(true);
+    try {
+      const response = await api.checkout({
+        userId: user.id,
+        items: [
+          {
+            productId: product.id,
+            quantity: 1,
+          },
+        ],
+      });
+
+      showToast(
+        `Order Placed! ID: ${response.orderId} (${response.orderNumber})`,
+        'success'
+      );
+
+      // Refresh product to get updated stock
+      setTimeout(async () => {
+        try {
+          const updatedProduct = await api.getProduct(product.id);
+          setProduct(updatedProduct);
+        } catch (error) {
+          console.error('Failed to refresh product:', error);
+        }
+      }, 500);
+    } catch (error: any) {
+      if (error.message.includes('Insufficient stock')) {
+        showToast('Sorry, this item is out of stock', 'error');
+        // Refresh product data
+        try {
+          const updatedProduct = await api.getProduct(product.id);
+          setProduct(updatedProduct);
+        } catch (refreshError) {
+          console.error('Failed to refresh product:', refreshError);
+        }
+      } else {
+        showToast(error.message || 'Checkout failed. Please try again.', 'error');
+      }
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="bg-gray-200 h-96 rounded-lg"></div>
+            <div>
+              <div className="h-10 bg-gray-200 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/3 mb-8"></div>
+              <div className="h-32 bg-gray-200 rounded mb-8"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h1>
+        <Link href="/" className="text-purple-600 hover:text-purple-700">
+          Return to homepage
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Link
+        href="/"
+        className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-8"
+      >
+        <svg
+          className="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back to Collection
+      </Link>
+
+      <div className="grid md:grid-cols-2 gap-12">
+        {/* Product Image */}
+        <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg aspect-square flex items-center justify-center">
+          <div className="text-9xl">⌚</div>
+        </div>
+
+        {/* Product Details */}
+        <div>
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {product.name}
+            </h1>
+            <p className="text-xl text-gray-600">{product.brand}</p>
+          </div>
+
+          <div className="mb-8">
+            <div className="flex items-baseline gap-4 mb-4">
+              <span className="text-4xl font-bold text-gray-900">
+                ${product.price.toLocaleString()}
+              </span>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  product.stock === 0
+                    ? 'bg-red-100 text-red-800'
+                    : product.stock < 5
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-green-100 text-green-800'
+                }`}
+              >
+                {product.stock === 0
+                  ? 'Out of Stock'
+                  : `${product.stock} in stock`}
+              </span>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              Details
+            </h2>
+            <dl className="grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm text-gray-600">Brand</dt>
+                <dd className="text-base font-medium text-gray-900">
+                  {product.brand}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-600">Category</dt>
+                <dd className="text-base font-medium text-gray-900">
+                  {product.category}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-600">Product ID</dt>
+                <dd className="text-base font-medium text-gray-900">
+                  {product.id}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-600">Availability</dt>
+                <dd className="text-base font-medium text-gray-900">
+                  {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {product.metadata?.description && (
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                Description
+              </h2>
+              <p className="text-gray-700">{product.metadata.description}</p>
+            </div>
+          )}
+
+          <button
+            onClick={handleBuyNow}
+            disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
+            className={`w-full py-4 px-6 rounded-lg text-white font-semibold text-lg transition-all ${
+              isPurchasing || product.stock === 0 || user?.id === 'guest'
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700 active:scale-95'
+            }`}
+          >
+            {isPurchasing
+              ? 'Processing...'
+              : product.stock === 0
+              ? 'Out of Stock'
+              : user?.id === 'guest'
+              ? 'Select User to Purchase'
+              : 'Buy Now'}
+          </button>
+
+          {user?.id === 'guest' && (
+            <p className="text-sm text-gray-600 mt-4 text-center">
+              Please select a user from the navbar to make a purchase
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

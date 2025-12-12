@@ -2,6 +2,7 @@ const fastify = require('fastify');
 const httpProxy = require('@fastify/http-proxy');
 const rateLimit = require('@fastify/rate-limit');
 const jwt = require('@fastify/jwt');
+const cors = require('@fastify/cors');
 const Redis = require('ioredis');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
@@ -19,6 +20,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chronos-super-secret-key-change-in
 
 async function start() {
   try {
+    // Register CORS
+    await app.register(cors, {
+      origin: ['http://localhost:8080', 'http://127.0.0.1:8080'],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+
     // Register JWT
     await app.register(jwt, {
       secret: JWT_SECRET,

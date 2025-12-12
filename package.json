@@ -1,0 +1,24 @@
+{
+  "name": "chronos",
+  "version": "1.0.0",
+  "description": "Chronos Luxury Watch Store - Full Stack Application",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"backend,frontend\" -c \"blue,magenta\" \"cd chronos-backend && npm run dev\" \"cd chronos-frontend && npm run dev\"",
+    "dev:backend": "cd chronos-backend && npm run dev",
+    "dev:frontend": "cd chronos-frontend && npm run dev",
+    "install:all": "cd chronos-backend && npm install && cd ../chronos-frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "luxury",
+    "watches",
+    "e-commerce",
+    "recommendations",
+    "microservices"
+  ],
+  "author": "",
+  "license": "ISC"
+}

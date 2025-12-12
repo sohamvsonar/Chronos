@@ -1,44 +1,59 @@
-# 🕰️ Chronos Management Backend
+# 🕰️ Chronos - Luxury Watch E-Commerce Platform
 
-> **Work Trial Project** | Dec 10 - Dec 12, 2025
+> **Full Stack Application** | Dec 10 - Dec 12, 2025
 >
-> A bespoke microservices backend for **Chronos**, a luxury Swiss watch store. This system manages products, customers, and orders, featuring a high-performance "For You" recommendation engine.
+> A complete e-commerce platform for **Chronos**, a luxury Swiss watch store. Features a microservices backend with personalized recommendations and a modern Next.js frontend.
 
-![Status Phase 2](https://img.shields.io/badge/Status-Phase_2_Complete-success?style=flat-square)
-![Stack](https://img.shields.io/badge/Stack-Node_Fastify_Postgres_Redis-blue?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Phase_4_Complete-success?style=flat-square)
+![Stack](https://img.shields.io/badge/Stack-Next.js_Node_Fastify_Postgres_Redis_BullMQ-blue?style=flat-square)
 
 ## 🏗️ Architecture
 
-This project uses a **Monorepo** structure to simulate a distributed microservices environment without the complexity of container orchestration (Docker). Services run as parallel Node.js processes on distinct ports, unified by an API Gateway.
+This project uses a **Monorepo** structure with a microservices backend and a Next.js frontend. Services run as parallel Node.js processes on distinct ports.
 
-* **Gateway (Port 3000):** The single entry point. Handles routing (Proxy), rate limiting, and authentication.
-* **Product Service (Port 3001):** Manages catalog, inventory transactions, and Redis caching.
-* **Customer Service (Port 3002):** Manages profiles, real-time analytics, and dynamic VIP tier calculation.
-* **Shared Packages:** Centralized database logic (`packages/database`) to prevent code duplication across services.
+### Backend Services
+* **Gateway (Port 3000):** API Gateway handling routing, rate limiting, and JWT authentication
+* **Product Service (Port 3001):** Catalog management, inventory, and Redis caching
+* **Customer Service (Port 3002):** Customer profiles, analytics, and VIP tier calculation
+* **Recommendation Service (Port 3003):** Hybrid recommendation engine (collaborative + content-based filtering)
+* **Order Service (Port 3004):** Order processing with BullMQ for asynchronous tasks
+* **Shared Packages:** Centralized database logic to prevent code duplication
+
+### Frontend
+* **Next.js App (Port 8080):** Modern React-based UI with TypeScript and Tailwind CSS
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-Since Docker is not used in this environment, ensure you have the following running locally:
 * **Node.js** (v18+)
 * **PostgreSQL** (Port 5432)
 * **Redis** (Port 6379)
 
-### Installation
+### Quick Start
 
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/sohamvsonar/Chronos.git
-    cd chronos-backend
+    cd Chronos
     ```
 
-2.  **Install dependencies (Workspaces):**
+2.  **Install all dependencies:**
     ```bash
+    # Backend
+    cd chronos-backend
     npm install
+
+    # Frontend
+    cd ../chronos-frontend
+    npm install
+
+    # Or use root script
+    cd ..
+    npm run install:all
     ```
 
 3.  **Environment Setup:**
-    Create a `.env` file in the root directory:
+    Create a `.env` file in `chronos-backend`:
     ```env
     DATABASE_URL="postgresql://user:password@localhost:5432/chronos"
     REDIS_URL="redis://localhost:6379"
@@ -46,81 +61,157 @@ Since Docker is not used in this environment, ensure you have the following runn
     ```
 
 4.  **Seed the Database:**
-    Populate Postgres with the provided `products.json`, `customers.json`, and simulated `orders.json`.
     ```bash
+    cd chronos-backend
     npm run seed
     ```
 
-5.  **Run the System:**
-    Start the Gateway and all Microservices simultaneously using `concurrently`.
+5.  **Run the Full Stack:**
     ```bash
+    # From root directory
     npm run dev
     ```
+
+    This starts:
+    - All backend services (Ports 3000-3004)
+    - Frontend (Port 8080)
+
+6.  **Access the Application:**
+    - Frontend: [http://localhost:8080](http://localhost:8080)
+    - API Gateway: [http://localhost:3000](http://localhost:3000)
 
 ## ✅ Implementation Status
 
 | Phase | Feature | Status | Description |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | **Infrastructure** | ✅ Done | Monorepo setup, API Gateway configuration, Shared DB logic. |
-| **Phase 2** | **Core Logic** | ✅ Done | Inventory control (atomic decrements), Redis caching strategy, Dynamic VIP Tier calculation. |
-| **Phase 3** | **"For You" Engine** | 🚧 Pending | Collaborative filtering & personalized recommendations. |
-| **Phase 4** | **Async Jobs** | 🚧 Pending | BullMQ integration for background tasks and alerts. |
+| **Phase 1** | **Infrastructure** | ✅ Complete | Gateway, Product/Customer services, Shared DB package |
+| **Phase 2** | **Core Logic** | ✅ Complete | Inventory management, Redis caching, VIP tier calculation |
+| **Phase 3** | **Recommendations** | ✅ Complete | Hybrid recommendation engine (collaborative + content-based) |
+| **Phase 4** | **Async Processing** | ✅ Complete | Order service with BullMQ, background jobs, stock alerts |
+| **Phase 5** | **Frontend** | ✅ Complete | Next.js app with user simulation, product catalog, checkout |
 
 ## 🔌 API Reference
 
-The Gateway (Port 3000) proxies requests to the underlying services.
+All requests go through the API Gateway (Port 3000).
 
-### Product Endpoints
-* `GET /products` - List all watches (supports pagination `?limit=10` & filtering).
-* `GET /products/:id` - Get details (Cached via Redis for performance).
-* `PATCH /products/:id/inventory` - Decrement stock safely (Invalidates cache on success).
+### Products
+* `GET /products` - List all products (pagination, filtering)
+* `GET /products/:id` - Get product details (Redis cached)
+* `PATCH /products/:id/inventory` - Decrement inventory atomically
 
-### Customer Endpoints
-* `GET /customers/:id` - Get profile with dynamic **VIP Tier** (Gold/Silver/Bronze) calculated from total spend.
-* `PUT /customers/:id` - Update profile details.
+### Customers
+* `GET /customers/:id` - Get customer profile with VIP tier
+* `PUT /customers/:id` - Update customer details
+* `GET /customers/:id/orders` - Get customer order history
 
-## 🧪 Testing Logic
+### Recommendations
+* `GET /recommendations/:userId` - Get personalized recommendations
+* `POST /recommendations/admin/weights` - Update algorithm weights
+* `GET /recommendations/admin/weights` - Get current weights
 
-I have included `curl` commands to verify the core business logic.
+### Orders
+* `POST /checkout` - Create order (asynchronous processing)
+* `GET /orders/:userId` - Get all orders for user
+* `GET /orders/:userId/:orderId` - Get specific order
 
-**Test 1: Check VIP Tier Calculation**
-*The system calculates `total_spent` on the fly. If > $10,000, returns "Gold".*
+### Authentication
+* `POST /auth/token` - Generate JWT token (dev only)
+
+## 🎨 Frontend Features
+
+### User Experience
+* **User Switcher**: Toggle between James Bond, Alice Johnson, or Guest mode
+* **Personalized Homepage**: "For You" section with hybrid recommendations
+* **Product Catalog**: Browse all luxury watches with live stock indicators
+* **Product Details**: Full product information with Buy Now functionality
+* **Toast Notifications**: Real-time feedback for orders and errors
+* **Responsive Design**: Mobile-first Tailwind CSS styling
+
+### Smart Features
+* **Cold Start Detection**: Shows "Trending Now" for users without purchase history
+* **Real-time Updates**: Product stock updates after each purchase
+* **Error Handling**: Graceful handling of insufficient stock scenarios
+* **Loading States**: Skeleton screens for better UX
+
+## 🧪 Testing
+
+### Frontend Testing
+1. Visit [http://localhost:8080](http://localhost:8080)
+2. Use the user switcher to select different users
+3. Browse personalized recommendations
+4. Click a product to view details
+5. Click "Buy Now" to place an order
+6. Watch toast notification confirm your order
+
+### Backend Testing
+See `chronos-backend/PHASE*.md` files for comprehensive testing guides.
+
+**Quick Test:**
 ```bash
-curl http://localhost:3000/customers/cust_001
+# Get recommendations
+curl http://localhost:3000/recommendations/cust_001
 
-**Test 2: Buy a Watch (Decrement Stock)**
-*Decrements inventory by 1. If you run this enough times to deplete stock, it will return 400 Bad Request.*
-```bash
-curl -X PATCH http://localhost:3000/products/prod_001/inventory \
+# Place an order
+curl -X POST http://localhost:3000/checkout \
   -H "Content-Type: application/json" \
-  -d '{"quantity": 1}'
+  -d '{"userId": "cust_001", "items": [{"productId": "prod_001", "quantity": 1}]}'
 ```
 
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-chronos-backend/
-├── data/
-│   ├── products.json
-│   ├── customers.json
-│   └── orders.json
-├── packages/
-│   └── database/
-│       ├── package.json
-│       ├── index.js          # PostgreSQL client
-│       ├── schema.js         # Database schema
-│       └── seed.js           # Seeding script
-├── services/
-│   ├── gateway/              # API Gateway (Port 3000)
-│   │   ├── package.json
-│   │   └── index.js
-│   ├── product-service/      # Product Service (Port 3001)
-│   │   ├── package.json
-│   │   └── index.js
-│   └── customer-service/     # Customer Service (Port 3002)
-│       ├── package.json
-│       └── index.js
-├── .env.example
-└── package.json
+Chronos/
+├── chronos-backend/          # Backend microservices
+│   ├── data/
+│   │   ├── products.json
+│   │   ├── customers.json
+│   │   └── orders.json
+│   ├── packages/
+│   │   └── database/         # Shared database package
+│   ├── services/
+│   │   ├── gateway/          # API Gateway (Port 3000)
+│   │   ├── product-service/  # Products (Port 3001)
+│   │   ├── customer-service/ # Customers (Port 3002)
+│   │   ├── recommendation-service/  # Recommendations (Port 3003)
+│   │   └── order-service/    # Orders (Port 3004)
+│   ├── PHASE*.md             # Documentation
+│   └── package.json
+│
+├── chronos-frontend/         # Next.js frontend
+│   ├── app/                  # App Router pages
+│   │   ├── products/[id]/    # Product detail page
+│   │   ├── layout.tsx        # Root layout
+│   │   ├── page.tsx          # Homepage
+│   │   └── globals.css
+│   ├── components/           # React components
+│   │   └── Navbar.tsx
+│   ├── contexts/             # React contexts
+│   │   ├── UserContext.tsx
+│   │   └── ToastContext.tsx
+│   ├── lib/
+│   │   └── api.ts            # API client
+│   └── package.json
+│
+├── package.json              # Root workspace
+└── README.md
+```
+
+## 🧪 Test Coverage
+
+All services include comprehensive Jest tests:
+
+| Service | Tests | Coverage |
+| :--- | :--- | :--- |
+| Gateway | 11 tests | JWT auth, rate limiting |
+| Product Service | 29 tests | CRUD, pagination, inventory |
+| Customer Service | 42 tests | VIP tiers, analytics |
+| Recommendation Service | 14 tests | Hybrid algorithm, weights |
+| Order Service | 15 tests | Checkout, async jobs |
+| **Total** | **111 tests** | **All passing** ✅ |
+
+Run tests:
+```bash
+cd chronos-backend
+npm test
 ```

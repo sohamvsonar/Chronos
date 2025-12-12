@@ -13,6 +13,7 @@ interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;
+  isAdmin: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -20,7 +21,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 const PREDEFINED_USERS: User[] = [
   { id: 'cust_001', name: 'James Bond', email: 'james.bond@mi6.gov.uk' },
   { id: 'cust_002', name: 'Alice Johnson', email: 'alice.johnson@email.com' },
-  { id: 'guest', name: 'Guest', email: 'guest@chronos.com' },
+  { id: 'cust_003', name: 'Michael Chen', email: 'michael.chen@email.com' },
+  { id: 'admin', name: 'Admin', email: 'admin@chronos.com' },
 ];
 
 // Helper to fetch and store JWT token
@@ -78,12 +80,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('chronos_token');
   };
 
+  const isAdmin = user?.id === 'admin';
+
   if (!isClient) {
     return null;
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
+    <UserContext.Provider value={{ user, setUser, logout, isAdmin }}>
       {children}
     </UserContext.Provider>
   );

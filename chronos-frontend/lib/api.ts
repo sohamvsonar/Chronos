@@ -71,6 +71,19 @@ export interface CheckoutResponse {
   jobId: string;
 }
 
+export interface WeightsResponse {
+  success: boolean;
+  weights: {
+    collaborative: number;
+    content: number;
+  };
+}
+
+export interface UpdateWeightsRequest {
+  collaborative: number;
+  content: number;
+}
+
 export const api = {
   async getToken(userId: string, email: string): Promise<string> {
     console.log('🌐 API: POST /auth/token', { userId, email });
@@ -188,5 +201,42 @@ export const api = {
     }
 
     return responseData;
+  },
+
+  // Admin: Get current recommendation weights
+  async getWeights(): Promise<WeightsResponse> {
+    console.log('🌐 API: GET /recommendations/admin/weights');
+    const response = await fetch(`${API_BASE_URL}/recommendations/admin/weights`, {
+      headers: getAuthHeaders(),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch weights');
+    }
+
+    const data = await response.json();
+    console.log('📥 API: Weights data:', data);
+    return data;
+  },
+
+  // Admin: Update recommendation weights
+  async updateWeights(weights: UpdateWeightsRequest): Promise<WeightsResponse> {
+    console.log('🌐 API: POST /recommendations/admin/weights', weights);
+    const response = await fetch(`${API_BASE_URL}/recommendations/admin/weights`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(weights),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    const data = await response.json();
+    console.log('📥 API: Update weights response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update weights');
+    }
+
+    return data;
   },
 };

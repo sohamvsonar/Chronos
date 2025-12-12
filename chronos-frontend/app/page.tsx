@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/contexts/UserContext';
 import { api, Product, RecommendationResponse } from '@/lib/api';
+import AdminPanel from '@/components/AdminPanel';
 
 export default function HomePage() {
-  const { user } = useUser();
+  const { user, isAdmin } = useUser();
   const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingRecs, setIsLoadingRecs] = useState(true);
@@ -22,6 +23,14 @@ export default function HomePage() {
       console.log('📊 fetchRecommendations called - User:', user);
       if (!user) {
         console.log('⚠️ No user, skipping recommendations fetch');
+        return;
+      }
+
+      // Skip recommendations for admin user (not a real customer)
+      if (user.id === 'admin') {
+        console.log('👤 Admin user, skipping recommendations fetch');
+        setIsLoadingRecs(false);
+        setRecommendations(null);
         return;
       }
 
@@ -79,45 +88,56 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Recommendations Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {recommendations?.coldStart ? '🔥 Trending Now' : '✨ Curated For You'}
-            </h2>
-            <p className="text-gray-600">
-              {recommendations?.coldStart
-                ? 'Best-selling watches from our collection'
-                : 'Personalized recommendations based on your preferences'}
-            </p>
+      {/* Admin Panel - Only visible for admin users */}
+      {isAdmin && (
+        <section className="py-8 bg-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AdminPanel />
           </div>
+        </section>
+      )}
 
-          {isLoadingRecs ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              ))}
+      {/* Recommendations Section - Hidden for admin */}
+      {!isAdmin && (
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {recommendations?.coldStart ? '🔥 Trending Now' : '✨ Curated For You'}
+              </h2>
+              <p className="text-gray-600">
+                {recommendations?.coldStart
+                  ? 'Best-selling watches from our collection'
+                  : 'Personalized recommendations based on your preferences'}
+              </p>
             </div>
-          ) : recommendations && recommendations.recommendations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {recommendations.recommendations
-                .filter(rec => rec.product && rec.product.id)
-                .map((rec, index) => (
-                  <ProductCard key={`rec-${rec.productId}-${index}`} product={rec.product} score={rec.score} />
+
+            {isLoadingRecs ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
                 ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-10">
-              No recommendations available
-            </p>
-          )}
-        </div>
-      </section>
+              </div>
+            ) : recommendations && recommendations.recommendations.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {recommendations.recommendations
+                  .filter(rec => rec.product && rec.product.id)
+                  .map((rec, index) => (
+                    <ProductCard key={`rec-${rec.productId}-${index}`} product={rec.product} score={rec.score} />
+                  ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-10">
+                No recommendations available
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Full Catalog Section */}
       <section className="py-16 bg-gray-50">

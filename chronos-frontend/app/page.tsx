@@ -13,22 +13,11 @@ export default function HomePage() {
   const [isLoadingRecs, setIsLoadingRecs] = useState(true);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
-  console.log('🏠 HomePage render - User:', user);
-  console.log('🏠 HomePage render - Recommendations:', recommendations);
-  console.log('🏠 HomePage render - Products count:', products.length);
-  console.log('🏠 HomePage render - Loading states:', { isLoadingRecs, isLoadingProducts });
-
   useEffect(() => {
     async function fetchRecommendations() {
-      console.log('📊 fetchRecommendations called - User:', user);
-      if (!user) {
-        console.log('⚠️ No user, skipping recommendations fetch');
-        return;
-      }
+      if (!user) return;
 
-      // Skip recommendations for admin user (not a real customer)
       if (user.id === 'admin') {
-        console.log('👤 Admin user, skipping recommendations fetch');
         setIsLoadingRecs(false);
         setRecommendations(null);
         return;
@@ -36,13 +25,10 @@ export default function HomePage() {
 
       setIsLoadingRecs(true);
       try {
-        console.log('🔄 Fetching recommendations for userId:', user.id);
         const data = await api.getRecommendations(user.id);
-        console.log('✅ Recommendations received:', data);
-        console.log('📦 Recommendations count:', data?.recommendations?.length || 0);
         setRecommendations(data);
       } catch (error) {
-        console.error('❌ Failed to fetch recommendations:', error);
+        console.error('Failed to fetch recommendations:', error);
       } finally {
         setIsLoadingRecs(false);
       }
@@ -53,16 +39,12 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      console.log('🛍️ fetchProducts called');
       setIsLoadingProducts(true);
       try {
-        console.log('🔄 Fetching products...');
         const data = await api.getProducts();
-        console.log('✅ Products received:', data);
-        console.log('📦 Products count:', data?.length || 0);
         setProducts(data);
       } catch (error) {
-        console.error('❌ Failed to fetch products:', error);
+        console.error('Failed to fetch products:', error);
       } finally {
         setIsLoadingProducts(false);
       }
@@ -72,64 +54,91 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Welcome to CHRONOS
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8">
-            Discover the world's finest luxury timepieces
-          </p>
-          <p className="text-lg text-gray-400">
-            Curated exclusively for {user?.name || 'you'}
-          </p>
+      <section className="relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 25% 25%, #d4af37 1px, transparent 1px),
+                             radial-gradient(circle at 75% 75%, #d4af37 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }} />
         </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+          <div className="text-center">
+            {/* Logo/Brand */}
+            <div className="mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full border-2 border-[#d4af37]/30 mb-6">
+                <svg className="w-10 h-10 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
+                  <path strokeLinecap="round" strokeWidth="1.5" d="M12 6v6l4 2" />
+                </svg>
+              </div>
+            </div>
+
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight text-white mb-6">
+              <span className="text-[#d4af37]">CHRONOS</span>
+            </h1>
+
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#d4af37] to-transparent mx-auto mb-8" />
+
+            <p className="font-sans text-lg md:text-xl text-[#a0a0a0] max-w-2xl mx-auto mb-4 tracking-wide">
+              Purveyors of Exceptional Timepieces
+            </p>
+
+            <p className="font-sans text-sm text-[#666666] tracking-widest uppercase">
+              Curated for {user?.name || 'the Discerning Collector'}
+            </p>
+          </div>
+        </div>
+
+        {/* Decorative bottom border */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent" />
       </section>
 
-      {/* Admin Panel - Only visible for admin users */}
+      {/* Admin Panel */}
       {isAdmin && (
-        <section className="py-8 bg-gray-100">
+        <section className="py-12 bg-[#111111] border-y border-[#d4af37]/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AdminPanel />
           </div>
         </section>
       )}
 
-      {/* Recommendations Section - Hidden for admin */}
+      {/* Recommendations Section */}
       {!isAdmin && (
-        <section className="py-16 bg-white">
+        <section className="py-20 bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-10">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {recommendations?.coldStart ? '🔥 Trending Now' : '✨ Curated For You'}
-              </h2>
-              <p className="text-gray-600">
-                {recommendations?.coldStart
-                  ? 'Best-selling watches from our collection'
-                  : 'Personalized recommendations based on your preferences'}
+            <div className="text-center mb-16">
+              <p className="text-[#d4af37] text-sm tracking-[0.3em] uppercase mb-4">
+                {recommendations?.coldStart ? 'Most Coveted' : 'Selected For You'}
               </p>
-              {/* Show current weights for debugging */}
+              <h2 className="font-display text-4xl md:text-5xl text-white mb-4">
+                {recommendations?.coldStart ? 'Trending Timepieces' : 'Your Personal Collection'}
+              </h2>
+              <div className="w-16 h-px bg-[#d4af37] mx-auto mb-6" />
+              <p className="text-[#808080] max-w-xl mx-auto">
+                {recommendations?.coldStart
+                  ? 'The most sought-after pieces from our distinguished collection'
+                  : 'Meticulously selected based on your refined taste'}
+              </p>
               {recommendations?.weights && !recommendations.coldStart && (
-                <p className="text-sm text-purple-600 mt-2">
-                  Weights: Content {Math.round(recommendations.weights.content * 100)}% | Collaborative {Math.round(recommendations.weights.collaborative * 100)}%
+                <p className="text-xs text-[#d4af37]/60 mt-4 tracking-wide">
+                  Content: {Math.round(recommendations.weights.content * 100)}% | Collaborative: {Math.round(recommendations.weights.collaborative * 100)}%
                 </p>
               )}
             </div>
 
             {isLoadingRecs ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                  </div>
+                  <LoadingCard key={i} />
                 ))}
               </div>
             ) : recommendations && recommendations.recommendations.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {recommendations.recommendations
                   .filter(rec => rec.product && rec.product.id)
                   .map((rec, index) => (
@@ -137,38 +146,43 @@ export default function HomePage() {
                   ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-10">
-                No recommendations available
-              </p>
+              <div className="text-center py-16">
+                <p className="text-[#666666]">No recommendations available at this time</p>
+              </div>
             )}
           </div>
         </section>
       )}
 
+      {/* Divider */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="h-px bg-gradient-to-r from-transparent via-[#333333] to-transparent" />
+      </div>
+
       {/* Full Catalog Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Complete Collection
+          <div className="text-center mb-16">
+            <p className="text-[#d4af37] text-sm tracking-[0.3em] uppercase mb-4">
+              The Collection
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl text-white mb-4">
+              Complete Catalogue
             </h2>
-            <p className="text-gray-600">
-              Browse all {products.length} luxury timepieces
+            <div className="w-16 h-px bg-[#d4af37] mx-auto mb-6" />
+            <p className="text-[#808080]">
+              {products.length} exceptional timepieces await your consideration
             </p>
           </div>
 
           {isLoadingProducts ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                </div>
+                <LoadingCard key={i} />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {products
                 .filter(product => product && product.id)
                 .map((product, index) => (
@@ -178,6 +192,37 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-12 border-t border-[#1a1a1a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <svg className="w-6 h-6 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
+              <path strokeLinecap="round" strokeWidth="1.5" d="M12 6v6l4 2" />
+            </svg>
+            <span className="font-display text-xl text-white">CHRONOS</span>
+          </div>
+          <p className="text-[#666666] text-sm">
+            Excellence in Horology Since 2024
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function LoadingCard() {
+  return (
+    <div className="bg-[#111111] rounded-sm overflow-hidden border border-[#1a1a1a]">
+      <div className="aspect-square bg-[#1a1a1a] relative overflow-hidden">
+        <div className="absolute inset-0 animate-shimmer" />
+      </div>
+      <div className="p-6">
+        <div className="h-4 bg-[#1a1a1a] rounded mb-3 w-3/4" />
+        <div className="h-3 bg-[#1a1a1a] rounded mb-4 w-1/2" />
+        <div className="h-5 bg-[#1a1a1a] rounded w-1/3" />
+      </div>
     </div>
   );
 }
@@ -187,43 +232,97 @@ function ProductCard({ product, score }: { product: Product; score?: number }) {
     return null;
   }
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'sport':
+        return '◈';
+      case 'dress':
+        return '◇';
+      case 'luxury':
+        return '❖';
+      default:
+        return '○';
+    }
+  };
+
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer group">
-        <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-          <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
-            ⌚
+      <div className="group bg-[#111111] rounded-sm overflow-hidden border border-[#1a1a1a] hover:border-[#d4af37]/30 transition-all duration-500 cursor-pointer">
+        {/* Watch Display Area */}
+        <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-[#1a1a1a] via-[#151515] to-[#0f0f0f]">
+          {/* Decorative ring pattern */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative">
+              {/* Outer ring */}
+              <div className="w-32 h-32 rounded-full border border-[#2a2a2a] group-hover:border-[#d4af37]/20 transition-colors duration-500" />
+              {/* Middle ring */}
+              <div className="absolute inset-2 rounded-full border border-[#252525] group-hover:border-[#d4af37]/15 transition-colors duration-500" />
+              {/* Inner ring */}
+              <div className="absolute inset-4 rounded-full border border-[#202020] group-hover:border-[#d4af37]/10 transition-colors duration-500" />
+              {/* Center icon */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-4xl text-[#d4af37]/80 group-hover:text-[#d4af37] group-hover:scale-110 transition-all duration-500">
+                  {getCategoryIcon(product.category)}
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Subtle shine effect on hover */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+          {/* Score Badge */}
           {score !== undefined && (
-            <div className="absolute top-2 right-2 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
-              {Math.round(score * 100)}% match
+            <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0a0a0a] px-3 py-1 text-xs font-medium tracking-wide">
+              {Math.round(score * 100)}% Match
             </div>
           )}
+
+          {/* Stock Status */}
           {product.stock < 5 && product.stock > 0 && (
-            <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-              Low Stock
+            <div className="absolute top-4 left-4 bg-[#b8860b]/90 text-white px-3 py-1 text-xs tracking-wide">
+              Limited
             </div>
           )}
           {product.stock === 0 && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-              Out of Stock
+            <div className="absolute top-4 left-4 bg-[#8b0000]/90 text-white px-3 py-1 text-xs tracking-wide">
+              Sold Out
             </div>
           )}
-        </div>
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
-            {product.name}
-          </h3>
-          <p className="text-sm text-gray-600 mb-2">{product.brand}</p>
-          <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-gray-900">
-              ${product.price.toLocaleString()}
-            </span>
-            <span className="text-sm text-gray-500">
-              {product.stock} in stock
+
+          {/* Category indicator */}
+          <div className="absolute bottom-4 left-4">
+            <span className="text-[10px] text-[#666666] tracking-[0.2em] uppercase">
+              {product.category}
             </span>
           </div>
         </div>
+
+        {/* Product Info */}
+        <div className="p-6 border-t border-[#1a1a1a]">
+          <p className="text-[#d4af37] text-xs tracking-[0.15em] uppercase mb-2">
+            {product.brand}
+          </p>
+          <h3 className="font-display text-lg text-white mb-4 group-hover:text-[#d4af37] transition-colors duration-300 leading-tight">
+            {product.name}
+          </h3>
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[#666666] text-xs mb-1">Starting at</p>
+              <p className="text-white text-xl font-light tracking-wide">
+                ${product.price.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[#666666] text-xs">
+                {product.stock > 0 ? `${product.stock} available` : 'Waitlist'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hover indicator bar */}
+        <div className="h-0.5 bg-[#d4af37] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
       </div>
     </Link>
   );

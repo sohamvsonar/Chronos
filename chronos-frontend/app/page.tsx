@@ -14,6 +14,7 @@ export default function HomePage() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isBrandDropdownOpen, setIsBrandDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
@@ -25,6 +26,16 @@ export default function HomePage() {
   const filteredProducts = products.filter(product => {
     if (selectedBrand && product.brand !== selectedBrand) return false;
     if (selectedCategory && product.category !== selectedCategory) return false;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      if (
+        !product.name.toLowerCase().includes(term) &&
+        !product.brand.toLowerCase().includes(term) &&
+        !product.id.toLowerCase().includes(term)
+      ) {
+        return false;
+      }
+    }
     return true;
   });
 
@@ -192,6 +203,31 @@ export default function HomePage() {
 
           {/* Filter Controls */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
+            {/* Search */}
+            <div className="w-full md:w-auto">
+              <div className="flex items-center gap-3 px-4 py-2.5 border border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] focus-within:border-[#d4af37]/60 transition-all">
+                <svg className="w-4 h-4 text-[#666666]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by name, brand, or ID"
+                  className="bg-transparent focus:outline-none text-sm w-full placeholder:text-[#555555]"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="text-[#666666] hover:text-[#d4af37] transition-colors"
+                    aria-label="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Brand Filter */}
             <div className="relative">
               <button

@@ -1,0 +1,1066 @@
+openapi: 3.0.3
+info:
+  title: Chronos API Gateway
+  version: 1.0.0
+  description: >
+    Consolidated API surface for the Chronos microservices exposed through the Fastify
+    gateway. All business endpoints are proxied through the gateway and secured with
+    JWT bearer authentication unless noted otherwise.
+servers:
+  - url: http://localhost:3000
+    description: Local gateway (development)
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Token generation and auth helpers
+  - name: Health
+    description: Basic service health probes
+  - name: Products
+    description: Catalog and inventory
+  - name: Customers
+    description: Customer profile and lifecycle
+  - name: Orders
+    description: Checkout and order history
+  - name: Recommendations
+    description: Hybrid recommender endpoints
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Gateway health check
+      description: Lightweight probe to verify the gateway is reachable.
+      security: []  # public
+      responses:
+        '200':
+          description: Service is reachable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  service:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                example:
+                  status: ok
+                  service: gateway
+                  timestamp: 2025-01-01T12:00:00.000Z
+
+  /auth/token:
+    post:
+      tags: [Auth]
+      summary: Generate a short-lived JWT for testing
+      description: >
+        Issues a 24h bearer token that can be used with the secured gateway routes.
+        In production, replace with your real identity provider.
+      security: []  # public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, email]
+              properties:
+                userId:
+                  type: string
+                email:
+                  type: string
+                  format: email
+            example:
+              userId: user-123
+              email: shopper@example.com
+      responses:
+        '200':
+          description: JWT issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                expiresIn: 24h
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /products:
+    get:
+      tags: [Products]
+      summary: List products with optional filters
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: brand
+          schema:
+            type: string
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+            format: float
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+            format: float
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Filtered catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                success: true
+                data:
+                  - id: w-1000
+                    name: Chronos Royal Oak
+                    brand: Chronos
+                    category: luxury
+                    price: 12999.99
+                    stock: 7
+                pagination:
+                  limit: 10
+                  offset: 0
+                  total: 24
+                  hasMore: true
+
+    post:
+      tags: [Products]
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+            example:
+              id: w-2000
+              name: Chronos Diver
+              brand: Chronos
+              price: 4999.5
+              stock: 25
+              category: sports
+              metadata:
+                waterResistance: "200m"
+                strap: rubber
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate product id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get a single product (cached)
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  cached:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Product'
+              example:
+                success: true
+                cached: true
+                data:
+                  id: w-1000
+                  name: Chronos Royal Oak
+                  brand: Chronos
+                  category: luxury
+                  price: 12999.99
+                  stock: 7
+        '404':
+          description: Product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Products]
+      summary: Update a product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: No fields provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /products/{id}/inventory:
+    patch:
+      tags: [Products]
+      summary: Decrement inventory during checkout flows
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+            example:
+              quantity: 2
+      responses:
+        '200':
+          description: Inventory updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                      product_name:
+                        type: string
+                      quantity_purchased:
+                        type: integer
+                      remaining_stock:
+                        type: integer
+                      price_per_unit:
+                        type: number
+                        format: float
+                      total_cost:
+                        type: string
+              example:
+                success: true
+                message: Inventory updated successfully
+                data:
+                  product_id: w-1000
+                  product_name: Chronos Royal Oak
+                  quantity_purchased: 1
+                  remaining_stock: 6
+                  price_per_unit: 12999.99
+                  total_cost: "12999.99"
+        '400':
+          description: Bad quantity or insufficient stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers:
+    get:
+      tags: [Customers]
+      summary: List customers (with tier/email filters)
+      parameters:
+        - in: query
+          name: tier
+          schema:
+            type: string
+            description: gold | platinum | diamond | silver
+        - in: query
+          name: email
+          schema:
+            type: string
+            description: Performs ILIKE search
+      responses:
+        '200':
+          description: Customers returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+                  count:
+                    type: integer
+    post:
+      tags: [Customers]
+      summary: Create a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+            example:
+              id: user-123
+              email: shopper@example.com
+              name: Jane Shopper
+              tier: gold
+              phone: "+1-222-333-4444"
+              address:
+                city: New York
+                country: US
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate email/id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{id}:
+    get:
+      tags: [Customers]
+      summary: Get customer with VIP tier
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/Customer'
+                      - type: object
+                        properties:
+                          total_spent:
+                            type: number
+                            format: float
+                          vip_tier:
+                            type: string
+        '404':
+          description: Customer missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Customers]
+      summary: Update customer profile or tier
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '400':
+          description: No fields provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Customers]
+      summary: Delete a customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Customer removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Customer has related orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{id}/orders:
+    get:
+      tags: [Customers]
+      summary: View orders for a customer
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Orders fetched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  count:
+                    type: integer
+
+  /checkout:
+    post:
+      tags: [Orders]
+      summary: Submit checkout (queues async fulfillment)
+      description: >
+        Places an order, decrements inventory, enqueues processing in BullMQ,
+        and returns a 202 with the queued job id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+            example:
+              userId: user-123
+              items:
+                - productId: w-1000
+                  quantity: 1
+                - productId: w-2000
+                  quantity: 2
+      responses:
+        '202':
+          description: Order accepted and queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  orderId:
+                    type: integer
+                  orderNumber:
+                    type: string
+                  status:
+                    type: string
+                  totalAmount:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderItem'
+                  jobId:
+                    type: string
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /orders/{userId}:
+    get:
+      tags: [Orders]
+      summary: Get orders for a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Orders returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  userId:
+                    type: string
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  count:
+                    type: integer
+
+  /orders/{userId}/{orderId}:
+    get:
+      tags: [Orders]
+      summary: Get a specific order for a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /recommendations/{userId}:
+    get:
+      tags: [Recommendations]
+      summary: Hybrid recommendations for a user
+      description: >
+        Combines collaborative and content-based signals; falls back to top sellers for
+        cold-start users without history.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Recommendation set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user_id:
+                    type: string
+                  recommendations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recommendation'
+                  count:
+                    type: integer
+                  strategy:
+                    type: string
+                  weights:
+                    $ref: '#/components/schemas/RecommendationWeights'
+        '404':
+          description: User missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /recommendations/admin/weights:
+    post:
+      tags: [Recommendations]
+      summary: Update collaborative/content weights
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendationWeights'
+            example:
+              collaborative: 0.6
+              content: 0.4
+      responses:
+        '200':
+          description: Weights updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  weights:
+                    $ref: '#/components/schemas/RecommendationWeights'
+        '400':
+          description: Bad input (must sum to 1.0)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Redis unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Recommendations]
+      summary: Read current recommender weights
+      responses:
+        '200':
+          description: Current weights
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  weights:
+                    $ref: '#/components/schemas/RecommendationWeights'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ProductId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+    CustomerId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProductCreate:
+      type: object
+      required: [id, name, brand, price, stock, category]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        category:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        brand:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        category:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        tier:
+          type: string
+        phone:
+          type: string
+        address:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CustomerCreate:
+      type: object
+      required: [id, email, name, tier]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        tier:
+          type: string
+        phone:
+          type: string
+        address:
+          type: object
+          additionalProperties: true
+
+    CustomerUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        tier:
+          type: string
+        phone:
+          type: string
+        address:
+          type: object
+          additionalProperties: true
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        quantity:
+          type: integer
+        pricePerUnit:
+          type: number
+        totalPrice:
+          type: number
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        order_number:
+          type: string
+        customer_id:
+          type: string
+        total_amount:
+          type: number
+        status:
+          type: string
+          description: pending | completed
+        payment_method:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    CheckoutRequest:
+      type: object
+      required: [userId, items]
+      properties:
+        userId:
+          type: string
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [productId, quantity]
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        stock:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        scores:
+          type: object
+          properties:
+            content:
+              type: number
+            collaborative:
+              type: number
+            hybrid:
+              type: number
+        reason:
+          type: string
+
+    RecommendationWeights:
+      type: object
+      required: [collaborative, content]
+      properties:
+        collaborative:
+          type: number
+          minimum: 0
+          maximum: 1
+        content:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+        message:
+          type: string

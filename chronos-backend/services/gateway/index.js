@@ -3,8 +3,12 @@ const httpProxy = require('@fastify/http-proxy');
 const rateLimit = require('@fastify/rate-limit');
 const jwt = require('@fastify/jwt');
 const cors = require('@fastify/cors');
+const swagger = require('@fastify/swagger');
+const swaggerUI = require('@fastify/swagger-ui');
 const Redis = require('ioredis');
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = fastify({
   logger: {
@@ -26,6 +30,33 @@ async function start() {
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+
+    // Serve Swagger/OpenAPI dashboard from static spec
+    await app.register(swagger, {
+      mode: 'static',
+      specification: {
+        path: path.join(__dirname, 'openapi.yaml'),
+        baseDir: __dirname,
+      },
+    });
+
+    await app.register(swaggerUI, {
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'list',
+        deepLinking: true,
+        defaultModelsExpandDepth: 1,
+        persistAuthorization: true,
+      },
+      staticCSP: true,
+      transformStaticCSP: (header) => header,
+    });
+
+    app.get('/docs/openapi.yaml', async (request, reply) => {
+      const specPath = path.join(__dirname, 'openapi.yaml');
+      const spec = await fs.promises.readFile(specPath, 'utf8');
+      reply.type('application/yaml').send(spec);
     });
 
     // Register JWT
@@ -151,7 +182,8 @@ async function start() {
 
     // Start server
     await app.listen({ port: PORT, host: '0.0.0.0' });
-    console.log(`🚀 API Gateway running on http://localhost:${PORT}`);
+    console.log(`dYs? API Gateway running on http://localhost:${PORT}`);
+    console.log(`Swagger UI available at http://localhost:${PORT}/docs`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);

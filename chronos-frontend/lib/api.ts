@@ -397,16 +397,91 @@ export const api = {
   },
 
   async removeFromWishlist(userId: string, productId: string): Promise<void> {
-    console.log('dYO? API: DELETE /customers/:id/wishlist/:productId', { userId, productId });
+    console.log('🌐 API: DELETE /customers/:id/wishlist/:productId', { userId, productId });
     const response = await fetch(`${API_BASE_URL}/customers/${userId}/wishlist/${productId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
-    console.log('dY"­ API: Response status:', response.status);
+    console.log('📡 API: Response status:', response.status);
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || 'Failed to remove from wishlist');
+    }
+  },
+
+  // Admin: Create a new product
+  async createProduct(product: Omit<Product, 'id'> & { id?: string }): Promise<Product> {
+    console.log('🌐 API: POST /products', product);
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(product),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    const data = await response.json();
+    console.log('📥 API: Create product response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create product');
+    }
+
+    return data.data || data.product || data;
+  },
+
+  // Admin: Update a product
+  async updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
+    console.log('🌐 API: PUT /products/:id', { id, updates });
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updates),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    const data = await response.json();
+    console.log('📥 API: Update product response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update product');
+    }
+
+    return data.data || data.product || data;
+  },
+
+  // Admin: Update product inventory
+  async updateInventory(id: string, quantity: number): Promise<Product> {
+    console.log('🌐 API: PATCH /products/:id/inventory', { id, quantity });
+    const response = await fetch(`${API_BASE_URL}/products/${id}/inventory`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ quantity }),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    const data = await response.json();
+    console.log('📥 API: Update inventory response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update inventory');
+    }
+
+    return data.data || data.product || data;
+  },
+
+  // Admin: Delete a product
+  async deleteProduct(id: string): Promise<void> {
+    console.log('🌐 API: DELETE /products/:id', { id });
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    console.log('📡 API: Response status:', response.status);
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to delete product');
     }
   },
 };

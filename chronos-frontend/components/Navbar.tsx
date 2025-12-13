@@ -60,7 +60,6 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-
             {/* User Selector */}
             <div className="relative">
               <button

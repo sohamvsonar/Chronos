@@ -269,23 +269,29 @@ export default function ProductDetailPage() {
           )}
 
           <div className="space-y-3">
-            <button
-              onClick={handleBuyNow}
-              disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
-              className={`w-full py-4 px-6 rounded-lg font-semibold text-[#0a0a0a] text-lg transition-all ${
-                isPurchasing || product.stock === 0 || user?.id === 'guest'
-                  ? 'bg-[#2d2d2d] text-[#606060] cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-lg hover:shadow-[#d4af37]/20 active:scale-95'
-              }`}
-            >
-              {isPurchasing
-                ? 'Processing...'
-                : product.stock === 0
-                ? 'Out of Stock'
-                : user?.id === 'guest'
-                ? 'Select User to Purchase'
-                : 'Buy Now'}
-            </button>
+            {user?.id !== 'admin' ? (
+              <button
+                onClick={handleBuyNow}
+                disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
+                className={`w-full py-4 px-6 rounded-lg font-semibold text-[#0a0a0a] text-lg transition-all ${
+                  isPurchasing || product.stock === 0 || user?.id === 'guest'
+                    ? 'bg-[#2d2d2d] text-[#606060] cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-lg hover:shadow-[#d4af37]/20 active:scale-95'
+                }`}
+              >
+                {isPurchasing
+                  ? 'Processing...'
+                  : product.stock === 0
+                  ? 'Out of Stock'
+                  : user?.id === 'guest'
+                  ? 'Select User to Purchase'
+                  : 'Buy Now'}
+              </button>
+            ) : (
+              <div className="w-full py-4 px-6 rounded-lg border border-[#2d2d2d] text-center text-sm text-[#c0c0c0]">
+                Admin accounts cannot place orders.
+              </div>
+            )}
 
             <button
               onClick={handleWishlistToggle}

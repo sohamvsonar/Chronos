@@ -401,6 +401,22 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* About Chronos */}
+      <section className="py-16 bg-[#0f0f0f] border-t border-[#1a1a1a]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <p className="text-[#d4af37] text-sm tracking-[0.3em] uppercase">About Chronos</p>
+          <h3 className="font-display text-3xl md:text-4xl text-white">Heritage in Every Second</h3>
+          <p className="text-[#a0a0a0] leading-relaxed">
+            Chronos curates precision timepieces for collectors who value craftsmanship, rarity, and enduring design.
+            From modern complications to heritage-inspired icons, our team sources, inspects, and delivers watches that
+            marry innovation with legacy. Every piece is handpicked, authenticated, and supported by concierge-level service.
+          </p>
+          <p className="text-[#808080] text-sm">
+            Founded in 2024, we remain independent, expert-led, and obsessed with elevating your collection.
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-12 border-t border-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

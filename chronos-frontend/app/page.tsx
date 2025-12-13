@@ -150,11 +150,6 @@ export default function HomePage() {
                   ? 'The most sought-after pieces from our distinguished collection'
                   : 'Meticulously selected based on your refined taste'}
               </p>
-              {recommendations?.weights && !recommendations.coldStart && (
-                <p className="text-xs text-[#d4af37]/60 mt-4 tracking-wide">
-                  Content: {Math.round(recommendations.weights.content * 100)}% | Collaborative: {Math.round(recommendations.weights.collaborative * 100)}%
-                </p>
-              )}
             </div>
 
             {isLoadingRecs ? (
@@ -498,7 +493,7 @@ function ProductCard({ product, score }: { product: Product; score?: number }) {
           {/* Score Badge */}
           {score !== undefined && (
             <div className="absolute top-4 right-4 bg-[#d4af37] text-[#0a0a0a] px-3 py-1 text-xs font-medium tracking-wide">
-              {Math.round(score * 100)}% Match
+              Exclusive
             </div>
           )}
 

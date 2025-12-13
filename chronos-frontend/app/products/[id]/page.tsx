@@ -15,6 +15,8 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -34,6 +36,28 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [params.id, showToast]);
+
+  useEffect(() => {
+    async function fetchWishlistStatus() {
+      if (!product || !user || user.id === 'guest' || user.id === 'admin') {
+        setIsInWishlist(false);
+        return;
+      }
+
+      setIsWishlistLoading(true);
+      try {
+        const wishlist = await api.getWishlist(user.id);
+        const exists = wishlist.items.some(item => item.productId === product.id);
+        setIsInWishlist(exists);
+      } catch (error) {
+        console.error('Failed to fetch wishlist status:', error);
+      } finally {
+        setIsWishlistLoading(false);
+      }
+    }
+
+    fetchWishlistStatus();
+  }, [product?.id, user]);
 
   const handleBuyNow = async () => {
     if (!product || !user) return;
@@ -82,6 +106,36 @@ export default function ProductDetailPage() {
       }
     } finally {
       setIsPurchasing(false);
+    }
+  };
+
+  const handleWishlistToggle = async () => {
+    if (!product || !user) return;
+    if (user.id === 'guest') {
+      showToast('Please select a user to save items', 'error');
+      return;
+    }
+    if (user.id === 'admin') {
+      showToast('Admin cannot save wishlist items', 'error');
+      return;
+    }
+
+    setIsWishlistLoading(true);
+    try {
+      if (isInWishlist) {
+        await api.removeFromWishlist(user.id, product.id);
+        setIsInWishlist(false);
+        showToast('Removed from wishlist', 'success');
+      } else {
+        await api.addToWishlist(user.id, product.id);
+        setIsInWishlist(true);
+        showToast('Saved to wishlist', 'success');
+      }
+    } catch (error: any) {
+      console.error('Wishlist toggle failed:', error);
+      showToast(error.message || 'Unable to update wishlist', 'error');
+    } finally {
+      setIsWishlistLoading(false);
     }
   };
 
@@ -214,23 +268,43 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <button
-            onClick={handleBuyNow}
-            disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
-            className={`w-full py-4 px-6 rounded-lg font-semibold text-[#0a0a0a] text-lg transition-all ${
-              isPurchasing || product.stock === 0 || user?.id === 'guest'
-                ? 'bg-[#2d2d2d] text-[#606060] cursor-not-allowed'
-                : 'bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-lg hover:shadow-[#d4af37]/20 active:scale-95'
-            }`}
-          >
-            {isPurchasing
-              ? 'Processing...'
-              : product.stock === 0
-              ? 'Out of Stock'
-              : user?.id === 'guest'
-              ? 'Select User to Purchase'
-              : 'Buy Now'}
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={handleBuyNow}
+              disabled={isPurchasing || product.stock === 0 || user?.id === 'guest'}
+              className={`w-full py-4 px-6 rounded-lg font-semibold text-[#0a0a0a] text-lg transition-all ${
+                isPurchasing || product.stock === 0 || user?.id === 'guest'
+                  ? 'bg-[#2d2d2d] text-[#606060] cursor-not-allowed'
+                  : 'bg-gradient-to-r from-[#d4af37] to-[#f4d03f] hover:shadow-lg hover:shadow-[#d4af37]/20 active:scale-95'
+              }`}
+            >
+              {isPurchasing
+                ? 'Processing...'
+                : product.stock === 0
+                ? 'Out of Stock'
+                : user?.id === 'guest'
+                ? 'Select User to Purchase'
+                : 'Buy Now'}
+            </button>
+
+            <button
+              onClick={handleWishlistToggle}
+              disabled={isWishlistLoading || user?.id === 'guest' || user?.id === 'admin'}
+              className={`w-full py-3 px-6 rounded-lg font-semibold text-sm border transition-all ${
+                isWishlistLoading || user?.id === 'guest' || user?.id === 'admin'
+                  ? 'bg-[#1a1a1a] border-[#2d2d2d] text-[#606060] cursor-not-allowed'
+                  : isInWishlist
+                  ? 'bg-[#1a1a1a] border-[#d4af37]/40 text-[#d4af37] hover:border-[#d4af37]/60'
+                  : 'bg-[#1a1a1a] border-[#2d2d2d] text-[#e5e5e5] hover:border-[#d4af37]/40'
+              }`}
+            >
+              {isWishlistLoading
+                ? 'Updating...'
+                : isInWishlist
+                ? 'Remove from Wishlist'
+                : 'Save to Wishlist'}
+            </button>
+          </div>
 
           {user?.id === 'guest' && (
             <p className="text-sm text-[#c0c0c0] mt-4 text-center">

@@ -111,9 +111,27 @@ export interface OrdersResponse {
   count: number;
 }
 
+export interface WishlistItem {
+  productId: string;
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  stock: number;
+  metadata?: Record<string, any>;
+  addedAt: string;
+}
+
+export interface WishlistResponse {
+  success: boolean;
+  customer_id: string;
+  count: number;
+  items: WishlistItem[];
+}
+
 export const api = {
   async getToken(userId: string, email: string): Promise<string> {
-    console.log('🌐 API: POST /auth/token', { userId, email });
+    console.log('dYO? API: POST /auth/token', { userId, email });
     const response = await fetch(`${API_BASE_URL}/auth/token`, {
       method: 'POST',
       headers: {
@@ -122,57 +140,55 @@ export const api = {
       body: JSON.stringify({ userId, email }),
     });
 
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error('Failed to get authentication token');
     }
 
     const data = await response.json();
-    console.log('📥 API: Token received');
+    console.log('dY"ť API: Token received');
     return data.token;
   },
 
   async getProducts(limit: number = 1000): Promise<Product[]> {
-    console.log('🌐 API: GET /products');
-    console.log('📤 API: Headers:', getAuthHeaders());
+    console.log('dYO? API: GET /products');
+    console.log('dY" API: Headers:', getAuthHeaders());
     const response = await fetch(`${API_BASE_URL}/products?limit=${limit}`, {
       headers: getAuthHeaders(),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error('Failed to fetch products');
     }
     const data = await response.json();
-    console.log('📥 API: Products data:', data);
-    // Backend returns { success, data, pagination }, not { products }
+    console.log('dY"ť API: Products data:', data);
     return data.data || [];
   },
 
-  async getProduct(id: string, skipCache: boolean = false): Promise<Product> {
-    console.log('🌐 API: GET /products/:id', { id });
+  async getProduct(id: string): Promise<Product> {
+    console.log('dYO? API: GET /products/:id', { id });
     const response = await fetch(`${API_BASE_URL}/products/${id}`, {
       headers: getAuthHeaders(),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error('Failed to fetch product');
     }
     const data = await response.json();
-    console.log('📥 API: Product data:', data);
-    // Backend returns { success, data, cached }, not { product }
+    console.log('dY"ť API: Product data:', data);
     return data.data;
   },
 
   async getRecommendations(userId: string): Promise<RecommendationResponse> {
-    console.log('🌐 API: GET /recommendations/:userId', { userId });
-    console.log('📤 API: Headers:', getAuthHeaders());
+    console.log('dYO? API: GET /recommendations/:userId', { userId });
+    console.log('dY" API: Headers:', getAuthHeaders());
     const response = await fetch(`${API_BASE_URL}/recommendations/${userId}`, {
       headers: getAuthHeaders(),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -181,18 +197,14 @@ export const api = {
       throw new Error('Failed to fetch recommendations');
     }
     const rawData = await response.json();
-    console.log('📥 API: Raw recommendations data:', rawData);
+    console.log('dY"ť API: Raw recommendations data:', rawData);
 
-    // Transform backend response to match frontend TypeScript interface
-    // Backend returns product fields at top level, we need them nested under 'product'
-    // Backend returns scores as: { scores: { content, collaborative, hybrid } }
     const data: RecommendationResponse = {
       success: rawData.success,
       userId: rawData.user_id || userId,
       recommendations: (rawData.recommendations || []).map((rec: any) => {
-        // Extract hybrid score from nested scores object
         const hybridScore = rec.scores?.hybrid || rec.score || rec.hybrid_score || 1.0;
-        console.log(`📊 Product ${rec.name}: content=${rec.scores?.content}, collab=${rec.scores?.collaborative}, hybrid=${hybridScore}`);
+        console.log(`dY"S Product ${rec.name}: content=${rec.scores?.content}, collab=${rec.scores?.collaborative}, hybrid=${hybridScore}`);
         return {
           productId: rec.id,
           score: hybridScore,
@@ -213,21 +225,21 @@ export const api = {
       coldStart: rawData.strategy === 'cold-start'
     };
 
-    console.log('📥 API: Transformed recommendations:', data);
+    console.log('dY"ť API: Transformed recommendations:', data);
     return data;
   },
 
   async checkout(data: CheckoutRequest): Promise<CheckoutResponse> {
-    console.log('🌐 API: POST /checkout', data);
+    console.log('dYO? API: POST /checkout', data);
     const response = await fetch(`${API_BASE_URL}/checkout`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     const responseData = await response.json();
-    console.log('📥 API: Checkout response:', responseData);
+    console.log('dY"ť API: Checkout response:', responseData);
 
     if (!response.ok) {
       throw new Error(responseData.error || 'Checkout failed');
@@ -236,35 +248,33 @@ export const api = {
     return responseData;
   },
 
-  // Admin: Get current recommendation weights
   async getWeights(): Promise<WeightsResponse> {
-    console.log('🌐 API: GET /recommendations/admin/weights');
+    console.log('dYO? API: GET /recommendations/admin/weights');
     const response = await fetch(`${API_BASE_URL}/recommendations/admin/weights`, {
       headers: getAuthHeaders(),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error('Failed to fetch weights');
     }
 
     const data = await response.json();
-    console.log('📥 API: Weights data:', data);
+    console.log('dY"ť API: Weights data:', data);
     return data;
   },
 
-  // Admin: Update recommendation weights
   async updateWeights(weights: UpdateWeightsRequest): Promise<WeightsResponse> {
-    console.log('🌐 API: POST /recommendations/admin/weights', weights);
+    console.log('dYO? API: POST /recommendations/admin/weights', weights);
     const response = await fetch(`${API_BASE_URL}/recommendations/admin/weights`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(weights),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     const data = await response.json();
-    console.log('📥 API: Update weights response:', data);
+    console.log('dY"ť API: Update weights response:', data);
 
     if (!response.ok) {
       throw new Error(data.error || 'Failed to update weights');
@@ -273,20 +283,93 @@ export const api = {
     return data;
   },
 
-  // Orders: Get all orders for a user
   async getOrders(userId: string): Promise<OrdersResponse> {
-    console.log('🌐 API: GET /orders/:userId', { userId });
+    console.log('dYO? API: GET /orders/:userId', { userId });
     const response = await fetch(`${API_BASE_URL}/orders/${userId}`, {
       headers: getAuthHeaders(),
     });
-    console.log('📡 API: Response status:', response.status);
+    console.log('dY"­ API: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error('Failed to fetch orders');
     }
 
     const data = await response.json();
-    console.log('📥 API: Orders data:', data);
+    console.log('dY"ť API: Orders data:', data);
     return data;
+  },
+
+  async getWishlist(userId: string): Promise<WishlistResponse> {
+    console.log('dYO? API: GET /customers/:id/wishlist', { userId });
+    const response = await fetch(`${API_BASE_URL}/customers/${userId}/wishlist`, {
+      headers: getAuthHeaders(),
+    });
+    console.log('dY"­ API: Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch wishlist');
+    }
+
+    const data = await response.json();
+    console.log('dY"ť API: Wishlist data:', data);
+
+    return {
+      success: data.success,
+      customer_id: data.customer_id || userId,
+      count: data.count || (data.items?.length ?? 0),
+      items: (data.items || []).map((item: any) => ({
+        productId: item.productId || item.product_id,
+        name: item.name,
+        brand: item.brand,
+        category: item.category,
+        price: parseFloat(item.price) || item.price,
+        stock: item.stock,
+        metadata: item.metadata,
+        addedAt: item.addedAt || item.created_at || item.createdAt
+      }))
+    };
+  },
+
+  async addToWishlist(userId: string, productId: string): Promise<WishlistItem> {
+    console.log('dYO? API: POST /customers/:id/wishlist', { userId, productId });
+    const response = await fetch(`${API_BASE_URL}/customers/${userId}/wishlist`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ productId }),
+    });
+    console.log('dY"­ API: Response status:', response.status);
+
+    const data = await response.json();
+    console.log('dY"ť API: Add wishlist response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to add to wishlist');
+    }
+
+    const item = data.item || {};
+    return {
+      productId: item.productId || productId,
+      name: item.name,
+      brand: item.brand,
+      category: item.category,
+      price: parseFloat(item.price) || item.price,
+      stock: item.stock,
+      metadata: item.metadata,
+      addedAt: item.addedAt || item.created_at || new Date().toISOString(),
+    };
+  },
+
+  async removeFromWishlist(userId: string, productId: string): Promise<void> {
+    console.log('dYO? API: DELETE /customers/:id/wishlist/:productId', { userId, productId });
+    const response = await fetch(`${API_BASE_URL}/customers/${userId}/wishlist/${productId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    console.log('dY"­ API: Response status:', response.status);
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to remove from wishlist');
+    }
   },
 };

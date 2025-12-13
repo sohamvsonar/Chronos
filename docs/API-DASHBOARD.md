@@ -25,6 +25,7 @@ Interactive docs are now available via Swagger UI, backed by a consolidated Open
 - Orders: checkout (async with BullMQ), list user orders, get order details.
 - Recommendations: personalized and cold-start, admin weight tuning.
 - Gateway/infra: health, auth, rate limiting (100 req/min, Redis-backed when configured).
+- Wishlist: add/remove products, fetch a user’s wishlist (returns product details + added date).
 
 ## Quick payload references
 
@@ -54,6 +55,10 @@ Interactive docs are now available via Swagger UI, backed by a consolidated Open
   ```json
   { "collaborative": 0.6, "content": 0.4 }
   ```
+- Wishlist add:  
+  ```json
+  { "productId": "w-1000" }
+  ```
 
 ## Suggested flows to validate
 
@@ -62,6 +67,7 @@ Interactive docs are now available via Swagger UI, backed by a consolidated Open
 3) **Recommendations**: GET `/recommendations/{userId}` before and after a checkout to see strategy change from `cold-start` to `hybrid`.  
 4) **Weights tuning**: POST `/recommendations/admin/weights` then re-run recommendations to confirm new weights.  
 5) **Customer insights**: GET `/customers/{id}` to view `vip_tier` and `total_spent`.
+6) **Wishlist**: POST `/customers/{id}/wishlist` with `productId`, GET `/customers/{id}/wishlist` to confirm, DELETE `/customers/{id}/wishlist/{productId}` to remove.
 
 ## Notes
 

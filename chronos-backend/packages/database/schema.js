@@ -51,6 +51,24 @@ const createSchema = async () => {
       CREATE INDEX IF NOT EXISTS idx_customers_tier ON customers(tier);
     `);
 
+    // Create wishlist_items table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS wishlist_items (
+        id SERIAL PRIMARY KEY,
+        customer_id VARCHAR(50) NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+        product_id VARCHAR(50) NOT NULL REFERENCES products(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (customer_id, product_id)
+      );
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_wishlist_customer_id ON wishlist_items(customer_id);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_wishlist_product_id ON wishlist_items(product_id);
+    `);
+
     // Create orders table
     await client.query(`
       CREATE TABLE IF NOT EXISTS orders (
@@ -116,6 +134,7 @@ const dropSchema = async () => {
 
   try {
     await client.query('BEGIN');
+    await client.query('DROP TABLE IF EXISTS wishlist_items CASCADE;');
     await client.query('DROP TABLE IF EXISTS order_items CASCADE;');
     await client.query('DROP TABLE IF EXISTS orders CASCADE;');
     await client.query('DROP TABLE IF EXISTS customers CASCADE;');

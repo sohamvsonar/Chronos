@@ -286,6 +286,161 @@ app.get('/customers/:id/orders', async (request, reply) => {
   }
 });
 
+// Wishlist: Get items
+app.get('/customers/:id/wishlist', async (request, reply) => {
+  try {
+    const { id } = request.params;
+
+    // Ensure customer exists
+    const customerCheck = await db.query('SELECT 1 FROM customers WHERE id = $1', [id]);
+    if (customerCheck.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: 'Customer not found'
+      });
+    }
+
+    const result = await db.query(
+      `SELECT w.product_id,
+              w.created_at,
+              p.name,
+              p.brand,
+              p.category,
+              p.price,
+              p.stock,
+              p.metadata
+       FROM wishlist_items w
+       JOIN products p ON p.id = w.product_id
+       WHERE w.customer_id = $1
+       ORDER BY w.created_at DESC`,
+      [id]
+    );
+
+    return {
+      success: true,
+      customer_id: id,
+      count: result.rows.length,
+      items: result.rows.map(row => ({
+        productId: row.product_id,
+        name: row.name,
+        brand: row.brand,
+        category: row.category,
+        price: parseFloat(row.price),
+        stock: row.stock,
+        metadata: row.metadata,
+        addedAt: row.created_at
+      }))
+    };
+  } catch (error) {
+    app.log.error('Get wishlist error:', error);
+    return reply.code(500).send({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Wishlist: Add item
+app.post('/customers/:id/wishlist', async (request, reply) => {
+  try {
+    const { id } = request.params;
+    const { productId } = request.body || {};
+
+    if (!productId) {
+      return reply.code(400).send({
+        success: false,
+        error: 'productId is required'
+      });
+    }
+
+    // Ensure customer exists
+    const customerCheck = await db.query('SELECT 1 FROM customers WHERE id = $1', [id]);
+    if (customerCheck.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: 'Customer not found'
+      });
+    }
+
+    // Ensure product exists
+    const productCheck = await db.query('SELECT id, name, brand, category, price, stock, metadata FROM products WHERE id = $1', [productId]);
+    if (productCheck.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    const insertResult = await db.query(
+      `INSERT INTO wishlist_items (customer_id, product_id)
+       VALUES ($1, $2)
+       ON CONFLICT (customer_id, product_id) DO NOTHING
+       RETURNING id, created_at`,
+      [id, productId]
+    );
+
+    if (insertResult.rows.length === 0) {
+      return reply.code(409).send({
+        success: false,
+        error: 'Product already in wishlist'
+      });
+    }
+
+    const product = productCheck.rows[0];
+
+    return reply.code(201).send({
+      success: true,
+      message: 'Added to wishlist',
+      item: {
+        productId: productId,
+        name: product.name,
+        brand: product.brand,
+        category: product.category,
+        price: parseFloat(product.price),
+        stock: product.stock,
+        metadata: product.metadata,
+        addedAt: insertResult.rows[0].created_at
+      }
+    });
+  } catch (error) {
+    app.log.error('Add to wishlist error:', error);
+    return reply.code(500).send({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Wishlist: Remove item
+app.delete('/customers/:id/wishlist/:productId', async (request, reply) => {
+  try {
+    const { id, productId } = request.params;
+
+    const result = await db.query(
+      'DELETE FROM wishlist_items WHERE customer_id = $1 AND product_id = $2 RETURNING id',
+      [id, productId]
+    );
+
+    if (result.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: 'Wishlist item not found'
+      });
+    }
+
+    return {
+      success: true,
+      message: 'Removed from wishlist'
+    };
+  } catch (error) {
+    app.log.error('Remove from wishlist error:', error);
+    return reply.code(500).send({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 // Start server
 async function start() {
   try {

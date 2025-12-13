@@ -580,6 +580,116 @@ paths:
                   count:
                     type: integer
 
+  /customers/{id}/wishlist:
+    get:
+      tags: [Customers]
+      summary: Get a customer's wishlist
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      responses:
+        '200':
+          description: Wishlist items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  customer_id:
+                    type: string
+                  count:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WishlistItem'
+        '404':
+          description: Customer missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Customers]
+      summary: Add a product to wishlist
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId]
+              properties:
+                productId:
+                  type: string
+            example:
+              productId: w-1000
+      responses:
+        '201':
+          description: Added to wishlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  item:
+                    $ref: '#/components/schemas/WishlistItem'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer or product missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Already in wishlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{id}/wishlist/{productId}:
+    delete:
+      tags: [Customers]
+      summary: Remove a product from wishlist
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Wishlist item missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /checkout:
     post:
       tags: [Orders]
@@ -1042,6 +1152,28 @@ components:
           type: number
           minimum: 0
           maximum: 1
+
+    WishlistItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        stock:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        addedAt:
+          type: string
+          format: date-time
 
     Pagination:
       type: object

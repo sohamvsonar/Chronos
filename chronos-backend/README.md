@@ -30,6 +30,12 @@ chronos-backend/
 └── package.json
 ```
 
+## Latest Updates
+- Loyalty discounts active (Platinum 15%, Gold 10%, Silver 7.5%, Bronze 5%) with reward points returned on checkout.
+- Wishlist CRUD exposed via gateway; unique customer/product enforced.
+- Low-stock alerts trigger when stock `<3`.
+- Swagger/OpenAPI served at `http://localhost:3000/docs` (spec at `/docs/openapi.yaml`).
+
 ## Features Implemented
 
 ### API Gateway (`services/gateway`)

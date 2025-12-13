@@ -11,6 +11,13 @@ Next.js frontend for the Chronos luxury watch store.
 - **Toast Notifications**: Real-time feedback for orders
 - **Responsive Design**: Tailwind CSS for beautiful UI on all devices
 
+## Latest Updates
+- Loyalty-aware pricing on product pages (strike-through original, discounted by tier: Platinum 15%, Gold 10%, Silver 7.5%, Bronze 5%).
+- Reward points surfaced and updated immediately after checkout; loyalty summary on orders page.
+- Wishlist support (add/remove per customer) with dedicated wishlist page and navbar link.
+- Search bar plus brand/category filters; limited badge when stock `<3`.
+- Recommendations show “Exclusive” badge instead of match percentages; admin checkout disabled.
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)

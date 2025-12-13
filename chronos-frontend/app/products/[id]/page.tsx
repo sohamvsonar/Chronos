@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from '@/contexts/ToastContext';
-import { api, Product } from '@/lib/api';
+import { api, Product, Customer } from '@/lib/api';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -17,6 +17,13 @@ export default function ProductDetailPage() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<Customer | null>(null);
+  const loyaltyDiscounts: Record<string, number> = {
+    platinum: 0.15,
+    gold: 0.10,
+    silver: 0.075,
+    bronze: 0.05,
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -36,6 +43,23 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [params.id, showToast]);
+
+  useEffect(() => {
+    async function fetchCustomer() {
+      if (!user || user.id === 'guest' || user.id === 'admin') {
+        setCustomerInfo(null);
+        return;
+      }
+      try {
+        const data = await api.getCustomer(user.id);
+        setCustomerInfo(data);
+      } catch (error) {
+        console.error('Failed to fetch customer info:', error);
+      }
+    }
+
+    fetchCustomer();
+  }, [user]);
 
   useEffect(() => {
     async function fetchWishlistStatus() {
@@ -85,12 +109,22 @@ export default function ProductDetailPage() {
       });
 
       showToast(
-        `Order Placed! ID: ${response.orderId} (${response.orderNumber})`,
+        `Order Placed! ID: ${response.orderId} (${response.orderNumber})`
+        + (response.rewardPointsEarned ? ` • +${response.rewardPointsEarned} pts` : '')
+        + (response.discountAmount ? ` • Saved $${response.discountAmount.toFixed(2)}` : ''),
         'success'
       );
 
       // Optimistically update stock immediately
       setProduct(prev => prev ? { ...prev, stock: prev.stock - 1 } : null);
+
+      // Optimistically update reward points locally
+      if (response.rewardPointsEarned && customerInfo) {
+        setCustomerInfo({
+          ...customerInfo,
+          reward_points: (customerInfo.reward_points || 0) + response.rewardPointsEarned,
+        });
+      }
     } catch (error: any) {
       if (error.message.includes('Insufficient stock')) {
         showToast('Sorry, this item is out of stock', 'error');
@@ -208,9 +242,28 @@ export default function ProductDetailPage() {
 
           <div className="mb-8">
             <div className="flex items-baseline gap-4 mb-4">
-              <span className="text-4xl font-bold text-[#d4af37]">
-                ${product.price.toLocaleString()}
-              </span>
+              {(() => {
+                const tierKey = (customerInfo?.tier || '').toLowerCase();
+                const rate = loyaltyDiscounts[tierKey] || 0;
+                const discounted = rate > 0 ? product.price * (1 - rate) : product.price;
+                return (
+                  <div className="flex items-baseline gap-3">
+                    {rate > 0 && (
+                      <span className="text-2xl text-[#808080] line-through">
+                        ${product.price.toLocaleString()}
+                      </span>
+                    )}
+                    <span className="text-4xl font-bold text-[#d4af37]">
+                      ${discounted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {rate > 0 && (
+                      <span className="text-sm text-[#d4af37] font-semibold">
+                        {Math.round(rate * 1000) / 10}% off
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   product.stock === 0
@@ -264,7 +317,39 @@ export default function ProductDetailPage() {
               <h2 className="text-lg font-semibold text-[#d4af37] mb-2">
                 Description
               </h2>
-              <p className="text-[#c0c0c0]">{product.metadata.description}</p>
+            <p className="text-[#c0c0c0]">{product.metadata.description}</p>
+          </div>
+        )}
+
+          {/* Loyalty panel */}
+          {customerInfo && (
+            <div className="mb-6 p-4 border border-[#2d2d2d] rounded-lg bg-[#111111]">
+              {(() => {
+                const tierKey = (customerInfo.tier || '').toLowerCase();
+                const rate = loyaltyDiscounts[tierKey] || 0;
+                const estimatedPoints = product ? Math.max(0, Math.floor(product.price - (product.price * rate))) : 0;
+                return (
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#666666]">Your Loyalty</p>
+                  <p className="text-base text-[#e5e5e5] font-semibold">
+                    Tier: {customerInfo.tier || '—'}
+                  </p>
+                  <p className="text-sm text-[#c0c0c0]">
+                    Reward Points: {customerInfo.reward_points ?? 0}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-[#d4af37] font-semibold">
+                    {rate > 0 ? `${Math.round(rate * 1000) / 10}% off` : 'No discount'}
+                  </p>
+                  <p className="text-xs text-[#808080]">
+                    Earn ≈ {estimatedPoints} pts on this piece
+                  </p>
+                </div>
+              </div>
+                );
+              })()}
             </div>
           )}
 

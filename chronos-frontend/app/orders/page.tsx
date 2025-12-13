@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/contexts/UserContext';
-import { api, Order } from '@/lib/api';
+import { api, Order, Customer } from '@/lib/api';
 
 export default function OrdersPage() {
   const { user } = useUser();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [customerInfo, setCustomerInfo] = useState<Customer | null>(null);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -32,6 +33,23 @@ export default function OrdersPage() {
     }
 
     fetchOrders();
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchCustomer() {
+      if (!user || user.id === 'guest' || user.id === 'admin') {
+        setCustomerInfo(null);
+        return;
+      }
+      try {
+        const data = await api.getCustomer(user.id);
+        setCustomerInfo(data);
+      } catch (err) {
+        console.error('Failed to fetch customer info:', err);
+      }
+    }
+
+    fetchCustomer();
   }, [user]);
 
   const formatDate = (dateString: string) => {
@@ -114,6 +132,13 @@ export default function OrdersPage() {
           </h1>
           <p className="text-[#808080] mt-1">Order history for {user.name}</p>
         </div>
+        {customerInfo && (
+          <div className="text-right bg-[#111111] border border-[#2d2d2d] rounded-lg px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#666666]">Loyalty</p>
+            <p className="text-sm text-[#e5e5e5] font-semibold">Tier: {customerInfo.tier || '—'}</p>
+            <p className="text-xs text-[#c0c0c0]">Reward Points: {customerInfo.reward_points ?? 0}</p>
+          </div>
+        )}
       </div>
 
       {/* Loading State */}

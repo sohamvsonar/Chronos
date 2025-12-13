@@ -22,7 +22,7 @@ Interactive docs are now available via Swagger UI, backed by a consolidated Open
 
 - Products: list/filter, get by id, create/update/delete, inventory decrement.
 - Customers: list/filter, get with VIP tier, create/update/delete, fetch customer orders.
-- Orders: checkout (async with BullMQ), list user orders, get order details.
+- Orders: checkout (async with BullMQ), loyalty discounts (platinum 15%, gold 10%, silver 7.5%, bronze 5%), reward points accrual, list user orders, get order details.
 - Recommendations: personalized and cold-start, admin weight tuning.
 - Gateway/infra: health, auth, rate limiting (100 req/min, Redis-backed when configured).
 - Wishlist: add/remove products, fetch a user’s wishlist (returns product details + added date).
@@ -51,6 +51,7 @@ Interactive docs are now available via Swagger UI, backed by a consolidated Open
     ]
   }
   ```
+- Loyalty discounts (applied automatically by tier): platinum 15%, gold 10%, silver 7.5%, bronze 5%. Reward points accrue on the post-discount total.
 - Recommendation weights:  
   ```json
   { "collaborative": 0.6, "content": 0.4 }

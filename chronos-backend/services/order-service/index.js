@@ -48,6 +48,20 @@ orderWorker.on('failed', (job, err) => {
   app.log.error(`Job ${job.id} failed:`, err);
 });
 
+// Ensure reward_points column exists (adds if missing)
+async function ensureLoyaltySchema() {
+  try {
+    await db.query(`
+      ALTER TABLE customers
+      ADD COLUMN IF NOT EXISTS reward_points INTEGER NOT NULL DEFAULT 0;
+    `);
+    app.log.info('Loyalty schema verified (reward_points column present)');
+  } catch (error) {
+    app.log.error('Failed to ensure loyalty schema:', error);
+    throw error;
+  }
+}
+
 // Background Order Processing Logic
 async function processOrder(data) {
   const { orderId, userId } = data;
@@ -122,12 +136,35 @@ app.post('/checkout', async (request, reply) => {
       });
     }
 
+    // Fetch customer tier for discounts and points
+    const customerResult = await client.query(
+      'SELECT id, tier, reward_points FROM customers WHERE id = $1',
+      [userId]
+    );
+
+    if (customerResult.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: 'Customer not found'
+      });
+    }
+
+    const customer = customerResult.rows[0];
+    const loyaltyDiscounts = {
+      platinum: 0.15,
+      gold: 0.10,
+      silver: 0.075,
+      bronze: 0.05
+    };
+    const tierKey = (customer.tier || '').toLowerCase();
+    const discountRate = loyaltyDiscounts[tierKey] || 0;
+
     app.log.info(`Processing checkout for user ${userId} with ${items.length} items`);
 
     // Start Transaction
     await client.query('BEGIN');
 
-    let totalAmount = 0;
+    let subtotal = 0;
     const orderItems = [];
 
     // Process each item
@@ -181,7 +218,7 @@ app.post('/checkout', async (request, reply) => {
 
       // Calculate item total
       const itemTotal = parseFloat(product.price) * quantity;
-      totalAmount += itemTotal;
+      subtotal += itemTotal;
 
       orderItems.push({
         productId: product.id,
@@ -193,6 +230,10 @@ app.post('/checkout', async (request, reply) => {
 
       app.log.info(`Processed item: ${product.name} x${quantity} = $${itemTotal}`);
     }
+
+    const discountAmount = parseFloat((subtotal * discountRate).toFixed(2));
+    const finalTotal = parseFloat((subtotal - discountAmount).toFixed(2));
+    const rewardPointsEarned = Math.max(0, Math.floor(finalTotal));
 
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -215,7 +256,7 @@ app.post('/checkout', async (request, reply) => {
         orderNumber,
         userId,
         JSON.stringify(normalizedItems),
-        totalAmount,
+        finalTotal,
         'pending',
         'credit_card', // Default payment method
         JSON.stringify({ address: 'To be confirmed' }) // Placeholder
@@ -233,10 +274,19 @@ app.post('/checkout', async (request, reply) => {
       );
     }
 
+    // Update loyalty reward points
+    await client.query(
+      `UPDATE customers
+       SET reward_points = reward_points + $1,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2`,
+      [rewardPointsEarned, userId]
+    );
+
     // Commit Transaction
     await client.query('COMMIT');
 
-    app.log.info(`Order ${order.id} created successfully. Total: $${totalAmount}`);
+    app.log.info(`Order ${order.id} created successfully. Subtotal: $${subtotal} Discount: ${discountAmount} Final: $${finalTotal}`);
 
     // Add job to BullMQ queue
     const job = await orderQueue.add('PROCESS_ORDER', {
@@ -255,7 +305,11 @@ app.post('/checkout', async (request, reply) => {
       orderId: order.id,
       orderNumber: order.order_number,
       status: 'processing',
-      totalAmount: totalAmount,
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      discountRate,
+      discountAmount,
+      totalAmount: finalTotal,
+      rewardPointsEarned,
       items: orderItems,
       jobId: job.id
     });

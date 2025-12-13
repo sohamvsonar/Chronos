@@ -60,7 +60,11 @@ export interface CheckoutResponse {
   orderId: number;
   orderNumber: string;
   status: string;
+  subtotal?: number;
+  discountRate?: number;
+  discountAmount?: number;
   totalAmount: number;
+  rewardPointsEarned?: number;
   items: Array<{
     productId: string;
     productName: string;
@@ -127,6 +131,23 @@ export interface WishlistResponse {
   customer_id: string;
   count: number;
   items: WishlistItem[];
+}
+
+export interface Customer {
+  id: string;
+  email: string;
+  name: string;
+  tier: string;
+  phone?: string;
+  address?: Record<string, any>;
+  reward_points?: number;
+  total_spent?: number;
+  vip_tier?: string;
+}
+
+export interface CustomerResponse {
+  success: boolean;
+  data: Customer;
 }
 
 export const api = {
@@ -297,6 +318,22 @@ export const api = {
     const data = await response.json();
     console.log('dY"ť API: Orders data:', data);
     return data;
+  },
+
+  async getCustomer(userId: string): Promise<Customer> {
+    console.log('dYO? API: GET /customers/:id', { userId });
+    const response = await fetch(`${API_BASE_URL}/customers/${userId}`, {
+      headers: getAuthHeaders(),
+    });
+    console.log('dY"­ API: Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch customer');
+    }
+
+    const data = await response.json();
+    console.log('dY"ť API: Customer data:', data);
+    return data.data;
   },
 
   async getWishlist(userId: string): Promise<WishlistResponse> {

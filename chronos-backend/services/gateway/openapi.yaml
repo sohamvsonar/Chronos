@@ -696,7 +696,8 @@ paths:
       summary: Submit checkout (queues async fulfillment)
       description: >
         Places an order, decrements inventory, enqueues processing in BullMQ,
-        and returns a 202 with the queued job id.
+        and returns a 202 with the queued job id. Loyalty discounts apply by customer tier:
+        platinum 15%, gold 10%, silver 7.5%, bronze 5%. Reward points are added based on final total.
       requestBody:
         required: true
         content:
@@ -728,8 +729,17 @@ paths:
                     type: string
                   status:
                     type: string
+                  subtotal:
+                    type: number
+                  discountRate:
+                    type: number
+                    description: Loyalty discount rate applied (0-1)
+                  discountAmount:
+                    type: number
                   totalAmount:
                     type: number
+                  rewardPointsEarned:
+                    type: integer
                   items:
                     type: array
                     items:

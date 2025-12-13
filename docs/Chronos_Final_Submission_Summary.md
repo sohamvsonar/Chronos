@@ -19,9 +19,9 @@ Chronos is a **luxury Swiss watch store management backend + storefront** built 
 
 ---
 
-## Rubric Mapping (5 Evaluation Parameters)
+## Rubric Mapping
 
-### 1) Project Completion ✅
+### 1) Project Completion
 **Core requirement delivered**
 - Implemented **“For You Engine”** as a dedicated **Recommendation Service** returning **top-4** products per customer, with **hybrid ranking** (content + collaborative) and **cold-start fallback**. 
 - Response includes score breakdown + chosen strategy (hybrid) + weights.
@@ -33,9 +33,9 @@ Chronos is a **luxury Swiss watch store management backend + storefront** built 
 - **Wishlist**: persistent per-customer wishlist with CRUD endpoints.
 - **Loyalty & rewards**: tiered discounts + reward points system (Bronze → Platinum). 
 
-### 2) Engineering Quality ✅
+### 2) Engineering Quality
 **Production-style backend design**
-- Built as a **gateway-fronted microservices monorepo** (Product, Customer, Recommendation, Order) with clear domain ownership instead of a single monolith. fileciteturn3file6L9-L12 fileciteturn3file9L9-L12  
+- Built as a **gateway-fronted microservices monorepo** (Product, Customer, Recommendation, Order) with clear domain ownership instead of a single monolith.
 - Gateway centralizes **JWT auth + rate limiting + routing** for consistent policy enforcement. 
 
 **Performance & reliability primitives**

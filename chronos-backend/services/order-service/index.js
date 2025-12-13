@@ -91,7 +91,7 @@ async function processOrder(data) {
     );
 
     for (const item of orderItems.rows) {
-      if (item.stock < 5) {
+      if (item.stock < 3) {
         app.log.warn(`[ALERT] Low stock for Product ${item.name} (ID: ${item.product_id}). Current stock: ${item.stock}`);
       }
     }

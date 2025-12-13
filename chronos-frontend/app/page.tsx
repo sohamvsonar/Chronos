@@ -503,7 +503,7 @@ function ProductCard({ product, score }: { product: Product; score?: number }) {
           )}
 
           {/* Stock Status */}
-          {product.stock < 5 && product.stock > 0 && (
+          {product.stock < 3 && product.stock > 0 && (
             <div className="absolute top-4 left-4 bg-[#b8860b]/90 text-white px-3 py-1 text-xs tracking-wide">
               Limited
             </div>

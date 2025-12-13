@@ -268,7 +268,7 @@ export default function ProductDetailPage() {
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   product.stock === 0
                     ? 'bg-red-900/30 text-red-400 border border-red-800'
-                    : product.stock < 5
+                    : product.stock < 3
                     ? 'bg-orange-900/30 text-orange-400 border border-orange-800'
                     : 'bg-green-900/30 text-green-400 border border-green-800'
                 }`}

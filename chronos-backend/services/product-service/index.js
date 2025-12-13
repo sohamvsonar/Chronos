@@ -427,14 +427,45 @@ app.delete('/products/:id', async (request, reply) => {
   try {
     const { id } = request.params;
 
-    const result = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
-
-    if (result.rows.length === 0) {
+    // Check if product exists
+    const productCheck = await db.query('SELECT id, name FROM products WHERE id = $1', [id]);
+    if (productCheck.rows.length === 0) {
       return reply.code(404).send({
         success: false,
         error: 'Product not found'
       });
     }
+
+    // Check if product has been ordered (exists in order_items or orders.items JSONB)
+    const orderCheck = await db.query(`
+      SELECT COUNT(*) as count FROM (
+        SELECT 1 FROM order_items WHERE product_id = $1
+        UNION ALL
+        SELECT 1 FROM orders o
+        WHERE EXISTS (
+          SELECT 1 FROM jsonb_array_elements(o.items) as item
+          WHERE (COALESCE(item->>'product_id', item->>'productId'))::text = $1
+        )
+      ) as orders_with_product
+    `, [id]);
+
+    const hasOrders = parseInt(orderCheck.rows[0].count) > 0;
+
+    if (hasOrders) {
+      // Product has order history - cannot hard delete
+      // Return informative error
+      return reply.code(409).send({
+        success: false,
+        error: 'Cannot delete product with order history',
+        message: `"${productCheck.rows[0].name}" has been purchased and cannot be deleted. Set stock to 0 to hide it from the catalogue instead.`
+      });
+    }
+
+    // No orders - safe to delete
+    // First, remove any wishlist items referencing this product
+    await db.query('DELETE FROM wishlist_items WHERE product_id = $1', [id]);
+
+    const result = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
 
     // Invalidate cache
     await deleteFromCache(`product:${id}`);
@@ -446,6 +477,16 @@ app.delete('/products/:id', async (request, reply) => {
     };
   } catch (error) {
     app.log.error(error);
+
+    // Check if it's a foreign key constraint error
+    if (error.code === '23503') {
+      return reply.code(409).send({
+        success: false,
+        error: 'Cannot delete product',
+        message: 'This product is referenced by other records and cannot be deleted.'
+      });
+    }
+
     return reply.code(500).send({
       success: false,
       error: 'Internal server error'

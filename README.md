@@ -1,10 +1,8 @@
 # 🕰️ Chronos - Luxury Watch E-Commerce Platform
 
-> **Full Stack Application** | Dec 10 - Dec 12, 2025
->
-> A complete e-commerce platform for **Chronos**, a luxury Swiss watch store. Features a microservices backend with personalized recommendations and a modern Next.js frontend.
+> Full Stack Application for **Chronos**, a luxury Swiss watch store. Microservices backend, personalized recommendations, loyalty rewards, wishlist, and a modern Next.js frontend with Swagger-documented APIs.
 
-![Status](https://img.shields.io/badge/Status-Phase_4_Complete-success?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
 ![Stack](https://img.shields.io/badge/Stack-Next.js_Node_Fastify_Postgres_Redis_BullMQ-blue?style=flat-square)
 
 ## 🏗️ Architecture
@@ -12,11 +10,11 @@
 This project uses a **Monorepo** structure with a microservices backend and a Next.js frontend. Services run as parallel Node.js processes on distinct ports.
 
 ### Backend Services
-* **Gateway (Port 3000):** API Gateway handling routing, rate limiting, and JWT authentication
-* **Product Service (Port 3001):** Catalog management, inventory, and Redis caching
-* **Customer Service (Port 3002):** Customer profiles, analytics, and VIP tier calculation
+* **Gateway (Port 3000):** API Gateway with Swagger UI (`/docs`), JWT auth, rate limiting, and proxying
+* **Product Service (Port 3001):** Catalog, inventory, Redis caching; low-stock alert threshold `<3`
+* **Customer Service (Port 3002):** Profiles, analytics, wishlist CRUD, reward points/tier data
 * **Recommendation Service (Port 3003):** Hybrid recommendation engine (collaborative + content-based filtering)
-* **Order Service (Port 3004):** Order processing with BullMQ for asynchronous tasks
+* **Order Service (Port 3004):** Checkout with loyalty discounts (Platinum 15%, Gold 10%, Silver 7.5%, Bronze 5%), reward points accrual, BullMQ async processing
 * **Shared Packages:** Centralized database logic to prevent code duplication
 
 ### Frontend
@@ -63,6 +61,7 @@ This project uses a **Monorepo** structure with a microservices backend and a Ne
 4.  **Seed the Database:**
     ```bash
     cd chronos-backend
+    psql -U postgres -c "CREATE DATABASE chronos;"
     npm run seed
     ```
 
@@ -75,6 +74,7 @@ This project uses a **Monorepo** structure with a microservices backend and a Ne
     This starts:
     - All backend services (Ports 3000-3004)
     - Frontend (Port 8080)
+    - Swagger UI at http://localhost:3000/docs
 
 6.  **Access the Application:**
     - Frontend: [http://localhost:8080](http://localhost:8080)

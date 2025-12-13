@@ -1,8 +1,8 @@
-# Chronos Management Backend
+# Chronos Backend
 
-A microservices-based backend system for a luxury watch store built with Node.js, Fastify, PostgreSQL, and Redis.
+A microservices-based backend for a luxury watch e-commerce platform built with Node.js, Fastify, PostgreSQL, and Redis.
 
-## Project Structure
+## Architecture Overview
 
 ```
 chronos-backend/
@@ -30,71 +30,81 @@ chronos-backend/
 └── package.json
 ```
 
-## Latest Updates
-- Loyalty discounts active (Platinum 15%, Gold 10%, Silver 7.5%, Bronze 5%) with reward points returned on checkout.
-- Wishlist CRUD exposed via gateway; unique customer/product enforced.
-- Low-stock alerts trigger when stock `<3`.
-- Swagger/OpenAPI served at `http://localhost:3000/docs` (spec at `/docs/openapi.yaml`).
+## Key Features
 
-## Features Implemented
+### Hybrid Recommendation Engine
+The recommendation service implements a sophisticated hybrid algorithm:
 
-### API Gateway (`services/gateway`)
-- **Port:** 3000
-- **Features:**
-  - Rate Limiting (100 requests per minute)
-  - JWT Authentication middleware
-  - Proxy routes to microservices
-  - Token generation endpoint for testing
-- **Routes:**
-  - `GET /health` - Health check
-  - `POST /auth/token` - Generate JWT token
-  - `/products/*` - Proxy to Product Service
-  - `/customers/*` - Proxy to Customer Service
+- **Cold Start**: Returns top-selling products for new users with no purchase history
+- **Content-Based Filtering**: Analyzes user's order history to identify preferred brands and categories, then scores products by preference match (1.0 = perfect match, 0.2 = no match)
+- **Collaborative Filtering**: Finds similar users who bought the same products and recommends what they purchased; falls back to global top-sellers when no similar users exist
+- **Hybrid Scoring**: Combines both strategies using configurable weights stored in Redis
+  ```
+  hybridScore = (content_score × content_weight) + (collab_score × collaborative_weight)
+  ```
+- **Admin Controls**: Update weights via `POST /recommendations/admin/weights`
 
-### Product Service (`services/product-service`)
-- **Port:** 3001
-- **Features:**
-  - **Redis Caching:** Product details cached for 60 seconds
-  - **Pagination:** Limit/offset support for product listings
-  - **Advanced Filtering:** Category, brand, price range filters
-  - **Inventory Management:** Stock validation and decrement
-- **Routes:**
-  - `GET /health` - Health check (includes Redis connection status)
-  - `GET /products` - List all products with pagination (params: limit, offset, category, brand, minPrice, maxPrice)
-  - `GET /products/:id` - Get product by ID with Redis caching
-  - `PATCH /products/:id/inventory` - Decrement stock (validates availability, invalidates cache)
-  - `POST /products` - Create new product
-  - `PUT /products/:id` - Update product (invalidates cache)
-  - `DELETE /products/:id` - Delete product (invalidates cache)
+### Loyalty & Rewards System
+Automated tier-based discounts and reward points:
 
-### Customer Service (`services/customer-service`)
-- **Port:** 3002
-- **Features:**
-  - **VIP Tier Calculation:** Dynamic tier based on total spending (Gold > $10k, Silver > $5k, Bronze ≤ $5k)
-  - **Order Analytics:** Calculates total_spent from completed/pending orders
-  - **Profile Management:** Update customer information
-- **Routes:**
-  - `GET /health` - Health check
-  - `GET /customers` - List all customers (with filters: tier, email)
-  - `GET /customers/:id` - Get customer by ID with total_spent and calculated vip_tier
-  - `PUT /customers/:id` - Update customer information (email, name, tier, phone, address)
-  - `GET /customers/:id/orders` - Get customer orders
-  - `POST /customers` - Create new customer
-  - `DELETE /customers/:id` - Delete customer
+| Tier     | Discount | Points Multiplier |
+|----------|----------|-------------------|
+| Platinum | 15%      | 2x                |
+| Gold     | 10%      | 1.5x              |
+| Silver   | 7.5%     | 1.25x             |
+| Bronze   | 5%       | 1x                |
 
-### Shared Database Package (`packages/database`)
-- PostgreSQL connection pool
-- Schema management with tables:
-  - `products` - Product catalog
-  - `customers` - Customer information
-  - `orders` - Order records
-- Seeding functionality from JSON files
+- Tiers calculated automatically based on total spending
+- Reward points earned on every purchase
+- Discounts applied automatically at checkout
+
+### Wishlist Management
+- Add/remove products to personal wishlist
+- Unique constraint per customer/product pair
+- Full CRUD via gateway endpoints
+
+### API Documentation
+- **Swagger UI**: Interactive docs at `http://localhost:3000/docs`
+- **OpenAPI Spec**: Available at `/docs/openapi.yaml`
+- All endpoints documented with request/response schemas
+
+### Inventory Management
+- Real-time stock tracking
+- Low-stock alerts when quantity < 3
+- Stock validation before checkout
+- Cache invalidation on inventory changes
+
+## Services
+
+### API Gateway (Port 3000)
+- JWT authentication middleware
+- Rate limiting (100 req/min per IP)
+- Request proxying to microservices
+- Swagger UI hosting
+
+### Product Service (Port 3001)
+- Product CRUD operations
+- Redis caching (60s TTL)
+- Pagination and filtering (brand, category, price range)
+- Inventory management
+
+### Customer Service (Port 3002)
+- Customer profiles with VIP tier calculation
+- Order management and analytics
+- Wishlist CRUD operations
+- Reward points tracking
+
+### Recommendation Service (Port 3003)
+- Hybrid recommendation algorithm
+- Configurable content/collaborative weights
+- Cold-start handling for new users
+- Real-time personalization
 
 ## Prerequisites
 
 - **Node.js** >= 18.0.0
 - **PostgreSQL** database running
-- **Redis** (optional, for distributed rate limiting)
+- **Redis**
 
 ## Setup Instructions
 
@@ -155,157 +165,64 @@ Run all services concurrently:
 npm run dev
 ```
 
-This starts:
-- **API Gateway** on `http://localhost:3000`
-- **Product Service** on `http://localhost:3001`
-- **Customer Service** on `http://localhost:3002`
+## API Endpoints
 
-## Phase 2 - Core Business Logic ✨
-
-### New Features Implemented
-
-**Product Service Enhancements:**
-- **Pagination:** `GET /products?limit=10&offset=0`
-- **Category Filtering:** `GET /products?category=sport`
-- **Redis Caching:** Product details cached for 60 seconds, cache invalidated on updates
-- **Inventory Management:** `PATCH /products/:id/inventory` with stock validation
-
-**Customer Service Enhancements:**
-- **VIP Tier Calculation:** Automatically calculate tier based on total spending
-  - Gold tier: Total spent > $10,000
-  - Silver tier: Total spent > $5,000
-  - Bronze tier: Total spent ≤ $5,000
-- **Order Analytics:** `total_spent` calculated from completed/pending orders
-- **Enhanced Profile:** `GET /customers/:id` returns customer with `total_spent` and `vip_tier`
-
-**📘 For detailed testing instructions and curl commands, see [PHASE2-TESTING.md](PHASE2-TESTING.md).**
-
-## Testing the API
-
-### 1. Generate an Authentication Token
-
+### Authentication
 ```bash
-curl -X POST http://localhost:3000/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"userId": "user123", "email": "test@example.com"}'
+POST /auth/token              # Generate JWT token
 ```
 
-Response:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expiresIn": "24h"
-}
-```
-
-### 2. Use the Token for Authenticated Requests
-
+### Products
 ```bash
-# Get all products
-curl http://localhost:3000/products \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-
-# Get all customers
-curl http://localhost:3000/customers \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-
-# Get product by ID
-curl http://localhost:3000/products/prod_001 \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-
-# Filter products by brand
-curl "http://localhost:3000/products?brand=Rolex" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-
-# Filter customers by tier
-curl "http://localhost:3000/customers?tier=platinum" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+GET  /products                # List products (with filters)
+GET  /products/:id            # Get product details
+POST /products                # Create product
+PUT  /products/:id            # Update product
+PATCH /products/:id/inventory # Update stock
 ```
 
-### 3. Direct Service Access (No Auth Required)
-
-You can also access services directly without going through the gateway:
-
+### Customers
 ```bash
-# Product Service
-curl http://localhost:3001/products
-curl http://localhost:3001/health
-
-# Customer Service
-curl http://localhost:3002/customers
-curl http://localhost:3002/health
+GET  /customers/:id           # Get customer with tier/points
+GET  /customers/:id/orders    # Get order history
+PUT  /customers/:id           # Update profile
 ```
 
-## Architecture Notes
+### Orders
+```bash
+POST /checkout                # Create order (applies discounts)
+GET  /orders/:userId          # Get user's orders
+```
 
-- **No Docker:** All services run locally on different ports as required
-- **Monorepo:** Using npm workspaces for dependency management
-- **Microservices:** Each service is independent and can be scaled separately
-- **Shared Database Package:** Common database logic shared across services
-- **API Gateway:** Single entry point with authentication and rate limiting
+### Recommendations
+```bash
+GET  /recommendations/:userId        # Get personalized recommendations
+GET  /recommendations/admin/weights  # Get current weights
+POST /recommendations/admin/weights  # Update weights
+```
 
-## Development Tips
-
-- Each service has its own logger with color-coded output
-- Services automatically reload when code changes (use nodemon in production)
-- The gateway handles all authentication - services trust the gateway
-- Rate limiting is per IP address with 100 requests per minute limit
+### Wishlist
+```bash
+GET    /wishlist/:customerId           # Get wishlist
+POST   /wishlist/:customerId/:productId # Add to wishlist
+DELETE /wishlist/:customerId/:productId # Remove from wishlist
+```
 
 ## Testing
 
-Comprehensive test suite with **82 passing tests** covering:
-- **Phase 1:** Gateway service (JWT, rate limiting, authentication)
-- **Phase 1:** Product service (CRUD operations, filtering)
-- **Phase 1:** Customer service (CRUD operations, filtering, orders)
-- **Phase 2:** Pagination and advanced filtering
-- **Phase 2:** Inventory management with stock validation
-- **Phase 2:** VIP tier calculation and customer analytics
-- **Phase 2:** Customer profile updates
-
-### Run Tests
-
 ```bash
-# Run all tests with coverage
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run individual service tests
-npm run test:gateway
-npm run test:products
-npm run test:customers
+npm test              # Run all tests
+npm run test:watch    # Watch mode
 ```
 
-For detailed testing documentation, see [TESTING.md](TESTING.md).
+## Environment Variables
 
-## Phase 2 Quick Test
-
-```bash
-# 1. Generate token
-export TOKEN=$(curl -s -X POST http://localhost:3000/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"userId": "user123", "email": "test@example.com"}' | jq -r '.token')
-
-# 2. Get a product (cached)
-curl -X GET "http://localhost:3000/products/prod_001" \
-  -H "Authorization: Bearer $TOKEN"
-
-# 3. Purchase simulation (decrement inventory)
-curl -X PATCH "http://localhost:3000/products/prod_001/inventory" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"quantity": 1}'
-
-# 4. Get customer with VIP tier
-curl -X GET "http://localhost:3000/customers/cust_001" \
-  -H "Authorization: Bearer $TOKEN"
+```env
+DATABASE_URL=postgresql://user:pass@localhost:5432/chronos
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-secret-key
+GATEWAY_PORT=3000
+PRODUCT_SERVICE_PORT=3001
+CUSTOMER_SERVICE_PORT=3002
+RECOMMENDATION_SERVICE_PORT=3003
 ```
-
-## Next Steps
-
-- **Phase 3:** Implement order service for managing watch purchases
-- Add BullMQ for background job processing
-- Add comprehensive error handling and validation
-- Implement API documentation with Swagger/OpenAPI
-- Performance monitoring and metrics
